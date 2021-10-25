@@ -14,7 +14,7 @@ class Products(models.Model):
     description = models.TextField(null=True)
     supplier = models.ForeignKey("Users.Suppliers", db_column='supplier', related_name='supplier',
                                  on_delete=models.CASCADE)
-    # barcode =
+    # TODO barcode
     selling_price = models.SmallIntegerField()
     purchasing_price = models.SmallIntegerField()
     mini_selling_price = models.SmallIntegerField()
@@ -44,13 +44,13 @@ class Brands(models.Model):
 class ProductsBrand(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE)
-    Brand = models.ForeignKey(Brands, db_column='Brand', on_delete=models.CASCADE)
+    Brand = models.ForeignKey(Brands, db_column='brand', on_delete=models.CASCADE)
 
 
 class OutPermissions(models.Model):
     id = models.AutoField(primary_key=True)
     warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
-    add_by = models.ForeignKey("Users.Employees", db_column='supplier', on_delete=models.CASCADE)
+    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField()
@@ -68,7 +68,7 @@ class OutPermissions_Products(models.Model):
 class AddPermissions(models.Model):
     id = models.AutoField(primary_key=True)
     warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
-    add_by = models.ForeignKey("Users.Employees", db_column='supplier', on_delete=models.CASCADE)
+    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField()

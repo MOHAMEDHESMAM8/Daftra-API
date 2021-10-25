@@ -106,13 +106,13 @@ class Employees(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', related_name='employee')
     role = models.ForeignKey(RolePermissions, on_delete=models.CASCADE, db_column='role')
     active = models.BooleanField(default=True)
-    photo = models.ImageField(upload_to='employee/%y/%m/%d', blank=True, null=True)
+    photo = models.ImageField(upload_to='employee/%y/%m', blank=True, null=True)
 
 
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
-    trade_name = models.CharField(max_length=25)
-    Tax_card = models.BigIntegerField(blank=True, null=True)
+    business_name  = models.CharField(max_length=25)
+    Tax_id = models.BigIntegerField(blank=True, null=True)
     commercial_record = models.SmallIntegerField(blank=True, null=True)
     currency = models.CharField(max_length=10)
 
