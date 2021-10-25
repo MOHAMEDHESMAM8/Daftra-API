@@ -38,20 +38,25 @@ user_type = (
     ('supplier', "supplier")
 
 )
+tax_types = (
+    ('inclusive', "inclusive"),
+    ('exclusive', "exclusive"),
+
+)
 
 
 class User(AbstractUser):
     id = models.AutoField(primary_key=True)
-    phone = models.CharField(max_length=11, null=True,blank=True)
-    telephone = models.CharField(max_length=11, null=True,blank=True)
+    phone = models.CharField(max_length=11, null=True, blank=True)
+    telephone = models.CharField(max_length=11, null=True, blank=True)
     username = None
     type = models.CharField(max_length=8, choices=user_type, default='customer')
-    middle_name = models.CharField(max_length=15, null=True,blank=True)
-    address = models.CharField(max_length=50, null=True,blank=True)
-    city = models.CharField(max_length=15, null=True,blank=True)
-    country = models.CharField(max_length=15, null=True,blank=True)
-    notes = models.CharField(max_length=150, null=True,blank=True)
-    email = models.EmailField(max_length=25, unique=True,blank=True)
+    middle_name = models.CharField(max_length=15, null=True, blank=True)
+    address = models.CharField(max_length=50, null=True, blank=True)
+    city = models.CharField(max_length=15, null=True, blank=True)
+    country = models.CharField(max_length=15, null=True, blank=True)
+    notes = models.CharField(max_length=150, null=True, blank=True)
+    email = models.EmailField(max_length=25, unique=True, blank=True)
     postal_code = models.SmallIntegerField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
@@ -111,8 +116,25 @@ class Employees(models.Model):
 
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
-    business_name  = models.CharField(max_length=25)
-    Tax_id = models.BigIntegerField(blank=True, null=True)
-    commercial_record = models.SmallIntegerField(blank=True, null=True)
+    business_name = models.CharField(max_length=25)
+    Tax_id = models.CharField(max_length=30, blank=True, null=True)
+    commercial_record = models.CharField(max_length=30, blank=True, null=True)
     currency = models.CharField(max_length=10)
 
+
+class Tax(models.Model):
+    id = models.AutoField(primary_key=True)
+    tax_name = models.CharField(max_length=30)
+    tax_value = models.PositiveSmallIntegerField()
+    product_included = models.CharField(max_length=10, choices=tax_types)
+
+
+class emails(models.Model):
+    id = models.AutoField(primary_key=True)
+    subject = models.CharField(max_length=30)
+    send_form = models.CharField(max_length=50)
+    send_to = models.CharField(max_length=50)
+    invoice = models.ForeignKey('Sales.SaleInvoice', on_delete=models.CASCADE, db_column='invoice')
+    message = models.TextField()
+    attachment = models.FileField(upload_to='email_attachments/%y/%m')
+    created_at = models.DateTimeField(auto_now_add=True)
