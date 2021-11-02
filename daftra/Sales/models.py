@@ -30,18 +30,18 @@ Shipping_details = (
 
 class SaleInvoice(models.Model):
     id = models.AutoField(primary_key=True)
-    Client = models.ForeignKey("Users.Customers", db_column='Client',
+    customer = models.ForeignKey("Users.Customers", db_column='customer',
                                on_delete=models.CASCADE)
     sold_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('Store.Warehouses', db_column='warehouse', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    payment_terms = models.SmallIntegerField(null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
     discount_type = models.CharField(null=True, blank=True, choices=discount_types, max_length=20)
     paid = models.BooleanField(default=False)
     shipping_fees = models.SmallIntegerField(null=True, blank=True)
     shipping_details = models.CharField(max_length=20, choices=Shipping_details)
     notes = models.TextField(null=True, blank=True)
+    payment_terms = models.SmallIntegerField(null=True, blank=True)
     payment_method = models.CharField(choices=payment_methods, default='cash', max_length=20)
     payment_no = models.IntegerField(null=True, blank=True)
     total = models.FloatField()
@@ -50,7 +50,7 @@ class SaleInvoice(models.Model):
 class Attachments(models.Model):
     id = models.AutoField(primary_key=True)
     sale_invoice = models.ForeignKey(SaleInvoice, db_column='purchase_invoice', on_delete=models.CASCADE)
-    attachment = models.FileField(upload_to='SalesInvoice_attachments/%y/%m')
+    attachment = models.FileField(upload_to='Files/%y/%m')
 
 
 class SaleInvoice_products(models.Model):
@@ -72,6 +72,6 @@ class SalePayments(models.Model):
     Date = models.DateTimeField(auto_now_add=True)
     payment_details = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
-    attachment = models.FileField(upload_to='SalePayments_attachments/%y/%m', null=True, blank=True)
+    attachment = models.FileField(upload_to='Files/%y/%m', null=True, blank=True)
     Amount = models.IntegerField()
     status = models.CharField(choices=payment_status, default='completed', max_length=20)

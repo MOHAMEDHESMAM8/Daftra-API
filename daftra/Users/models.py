@@ -38,9 +38,55 @@ user_type = (
     ('supplier', "supplier")
 
 )
+payment_status = (
+    ('incomplete', "incomplete"),
+    ('complete', "complete"),
+    ('pending', "pending"),
+    ('failed', "failed"),
+
+)
 tax_types = (
     ('inclusive', "inclusive"),
     ('exclusive', "exclusive"),
+
+)
+notes_types = (
+    ('customer', "customer"),
+    ('employee', "employee"),
+
+)
+RecordHistory_types = (
+    ('update_Store', "update_Store"),
+    ('update_invoice', "update_invoice"),
+    ('delete_product', "update_invoice"),
+    ('sold_product', "sold_product"),
+    ('create_payment', "create_payment"),
+    ('update_payment', "update_payment"),
+    ('delete_payment', "delete_payment"),
+    ('add_addPermission', "add_addPermission"),
+    ('add_outPermission', "add_outPermission"),
+    ('delete_addPermission', "delete_addPermission"),
+    ('delete_outPermission', "delete_outPermission"),
+    ('receive_product', "receive_product"),
+    ('create_purchase', "create_purchase"),
+    ('create_sale', "create_sale"),
+    ('send_email', "send_email"),
+    ('create_appointment', "create_appointment"),
+    ('update_appointment', "update_appointment"),
+    ('delete_appointment', "delete_appointment"),
+    ('move_product', "move_product"),
+
+)
+delete_type = (
+    ('sales', "sales"),
+    ('purchases', "purchases"),
+
+)
+payment_methods = (
+    ('cash', "cash"),
+    ('cheque', "cheque"),
+    ('bank transfer', "bank transfer"),
+    ('paytabs', "paytabs"),
 
 )
 
@@ -136,5 +182,47 @@ class emails(models.Model):
     send_to = models.CharField(max_length=50)
     invoice = models.ForeignKey('Sales.SaleInvoice', on_delete=models.CASCADE, db_column='invoice')
     message = models.TextField()
-    attachment = models.FileField(upload_to='email_attachments/%y/%m')
+    attachment = models.FileField(upload_to='Files/%y/%m')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RecordHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=20, choices=RecordHistory_types)
+    product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.CASCADE, null=True,
+                                 blank=True)
+    customer = models.ForeignKey(Customers, db_column='customer',
+                                  on_delete=models.CASCADE, null=True, blank=True)
+    employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.CASCADE, null=True, blank=True,related_name="employee")
+    activity_id = models.PositiveSmallIntegerField()
+    purchase = models.ForeignKey("Purchases.PurchaseInvoice", db_column='purchase', on_delete=models.CASCADE,
+                                  null=True,
+                                  blank=True)
+    sale = models.ForeignKey("Sales.SaleInvoice", db_column='sale', on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    add_by = models.ForeignKey(Employees, db_column='add_by', on_delete=models.CASCADE, null=True, blank=True)
+
+
+class deletedActivities(models.Model):
+    id = models.AutoField(primary_key=True)
+    payment = models.PositiveSmallIntegerField()
+    amount = models.PositiveIntegerField()
+    payment_method = models.CharField(choices=payment_methods, max_length=15)
+    status = models.CharField(choices=payment_status, max_length=20)
+    item_count = models.PositiveSmallIntegerField()
+    store_count = models.PositiveSmallIntegerField()
+
+
+class Notes(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField()
+    type = models.CharField(max_length=20, choices=notes_types)
+    # Todo اجراء تنفيذ CRUD
+    # Todo حدث الحالة الى CRUD
+
+
+class NotesAttachment(models.Model):
+    id = models.AutoField(primary_key=True)
+    attachment = models.FileField(upload_to='Files/%y/%m')
+    note = models.ForeignKey(Notes, db_column='note', on_delete=models.CASCADE)

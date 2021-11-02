@@ -28,6 +28,7 @@ class PurchaseInvoice(models.Model):
     add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
     warehouse = models.ForeignKey('Store.Warehouses', db_column='warehouse', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    Update_at = models.DateTimeField(auto_now=True)
     payment_terms = models.SmallIntegerField(null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
     discount_type = models.CharField(null=True, blank=True, choices=discount_types, max_length=20)
@@ -43,7 +44,7 @@ class PurchaseInvoice(models.Model):
 class Attachments(models.Model):
     id = models.AutoField(primary_key=True)
     purchase_invoice = models.ForeignKey(PurchaseInvoice, db_column='purchase_invoice', on_delete=models.CASCADE)
-    attachment = models.FileField(upload_to='PurchaseInvoice_attachments/%y/%m')
+    attachment = models.FileField(upload_to='Files/%y/%m')
 
 
 class PurchaseInvoice_products(models.Model):
@@ -65,6 +66,6 @@ class PurchasePayments(models.Model):
     Date = models.DateTimeField(auto_now_add=True)
     payment_details = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
-    attachment = models.FileField(upload_to='PurchasePayments_attachments/%y/%m', null=True, blank=True)
+    attachment = models.FileField(upload_to='Files/%y/%m', null=True, blank=True)
     Amount = models.IntegerField()
     status = models.CharField(choices=payment_status, default='completed', max_length=20)
