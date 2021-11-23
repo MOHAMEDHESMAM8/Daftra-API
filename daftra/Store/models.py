@@ -7,6 +7,7 @@ class Warehouses(models.Model):
     address = models.CharField(max_length=50, null=True)
 
 
+# TODO on delete product
 class Products(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)

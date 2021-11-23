@@ -58,7 +58,6 @@ notes_types = (
 RecordHistory_types = (
     ('update_Store', "update_Store"),
     ('update_invoice', "update_invoice"),
-    ('delete_product', "update_invoice"),
     ('sold_product', "sold_product"),
     ('create_payment', "create_payment"),
     ('update_payment', "update_payment"),
@@ -75,6 +74,9 @@ RecordHistory_types = (
     ('update_appointment', "update_appointment"),
     ('delete_appointment', "delete_appointment"),
     ('move_product', "move_product"),
+    ('update_product_invoice', "update_product_invoice"),
+    ('delete_product_invoice', "delete_product_invoice"),
+    ('update_product', "update_product"),
 
 )
 delete_type = (
@@ -188,16 +190,17 @@ class emails(models.Model):
 
 class RecordHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=20, choices=RecordHistory_types)
+    type = models.CharField(max_length=25, choices=RecordHistory_types)
     product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.CASCADE, null=True,
-                                 blank=True)
+                                blank=True)
     customer = models.ForeignKey(Customers, db_column='customer',
-                                  on_delete=models.CASCADE, null=True, blank=True)
-    employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.CASCADE, null=True, blank=True,related_name="employee")
+                                 on_delete=models.CASCADE, null=True, blank=True)
+    employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.CASCADE, null=True, blank=True,
+                                 related_name="employee")
     activity_id = models.PositiveSmallIntegerField()
     purchase = models.ForeignKey("Purchases.PurchaseInvoice", db_column='purchase', on_delete=models.CASCADE,
-                                  null=True,
-                                  blank=True)
+                                 null=True,
+                                 blank=True)
     sale = models.ForeignKey("Sales.SaleInvoice", db_column='sale', on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     add_by = models.ForeignKey(Employees, db_column='add_by', on_delete=models.CASCADE, null=True, blank=True)
@@ -205,12 +208,13 @@ class RecordHistory(models.Model):
 
 class deletedActivities(models.Model):
     id = models.AutoField(primary_key=True)
-    payment = models.PositiveSmallIntegerField()
-    amount = models.PositiveIntegerField()
-    payment_method = models.CharField(choices=payment_methods, max_length=15)
-    status = models.CharField(choices=payment_status, max_length=20)
-    item_count = models.PositiveSmallIntegerField()
-    store_count = models.PositiveSmallIntegerField()
+    payment = models.PositiveSmallIntegerField(null=True, blank=True, )
+    product = models.PositiveSmallIntegerField(null=True, blank=True, )
+    amount = models.PositiveIntegerField(null=True, blank=True, )
+    payment_method = models.CharField(choices=payment_methods, max_length=15, null=True, blank=True, )
+    status = models.CharField(choices=payment_status, max_length=20, null=True, blank=True, )
+    item_count = models.PositiveSmallIntegerField(null=True, blank=True, )
+    store_count = models.PositiveSmallIntegerField(null=True, blank=True, )
 
 
 class Notes(models.Model):
