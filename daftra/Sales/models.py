@@ -60,7 +60,7 @@ class SaleInvoice_products(models.Model):
     id = models.AutoField(primary_key=True)
     sales_invoice = models.ForeignKey(SaleInvoice, db_column='sales_invoice', on_delete=models.CASCADE,
                                       related_name="SaleInvoice_products")
-    product = models.ForeignKey('Store.Products', db_column='product', on_delete=models.CASCADE)
+    product = models.ForeignKey('Store.Products', db_column='product', on_delete=models.CASCADE, related_name="SaleInvoice")
     quantity = models.SmallIntegerField()
     unit_price = models.SmallIntegerField()
     count_after = models.SmallIntegerField()

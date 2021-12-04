@@ -13,10 +13,3 @@ admin.site.register(emails)
 admin.site.register(Notes)
 admin.site.register(NotesAttachment)
 admin.site.register(deletedActivities)
-
-admin.site.register(RecordHistory)
-admin.site.register(emails)
-admin.site.register(Notes)
-admin.site.register(NotesAttachment)
-admin.site.register(deletedActivities)
-

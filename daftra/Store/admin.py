@@ -4,7 +4,6 @@ from  .models import *
 admin.site.register(Warehouses)
 admin.site.register(Products)
 admin.site.register(Brands)
-admin.site.register(ProductsBrand)
 admin.site.register(Categories)
 admin.site.register(ProductsCategory)
 admin.site.register(AddPermissions)

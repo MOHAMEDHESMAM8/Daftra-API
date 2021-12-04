@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
@@ -8,7 +9,8 @@ from Users.models import *
 from Store.models import *
 
 
-def add_record_history(activity_type, activity_id, add_by, product=None, customer=None, employee=None, sale=None):
+def add_record_history(activity_type, activity_id, add_by, product=None, customer=None, employee=None, sale=None,
+                       outpermissions =None, addpermissions=None):
     RecordHistory.objects.create(
         type=activity_type,
         activity_id=activity_id,
@@ -17,6 +19,8 @@ def add_record_history(activity_type, activity_id, add_by, product=None, custome
         employee=employee,
         sale=sale,
         add_by=add_by,
+        outPermissions=outpermissions,
+        addPermissions=addpermissions,
     )
 
 
@@ -168,8 +172,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         # update and create  products
         for item in products:
             try:
-
-                product_obj = SaleInvoice_products.objects.get(pk=item.pop('id'))
+                product_obj = SaleInvoice_products.objects.get(product_id=item["product"], sales_invoice=instance)
                 # change product count
                 quantity = item.get('quantity')
                 # check id quantity is enough
@@ -196,7 +199,8 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                    activity_id=product_obj.id,
                                    product=product_obj.product
                                    )
-            except:
+            except ObjectDoesNotExist:
+                # TODO put change product before add
                 product = SaleInvoice_products.objects.create(sales_invoice=instance,
                                                               quantity=item.pop('quantity'),
                                                               unit_price=item.pop('unit_price'),
@@ -225,7 +229,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                 attachment_obj = Attachments.objects.get(pk=item.pop('id'))
                 attachment_obj.attachment = item.pop('attachment')
                 attachment_obj.save()
-            except:
+            except ObjectDoesNotExist:
                 Attachments.objects.create(sales_invoice=instance, attachment=item.pop('attachment')
                                            )
 

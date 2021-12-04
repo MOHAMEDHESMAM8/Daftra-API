@@ -64,8 +64,16 @@ RecordHistory_types = (
     ('delete_payment', "delete_payment"),
     ('add_addPermission', "add_addPermission"),
     ('add_outPermission', "add_outPermission"),
+    ('update_outPermission', "update_outPermission"),
+    ('update_addPermission', "update_addPermission"),
     ('delete_addPermission', "delete_addPermission"),
     ('delete_outPermission', "delete_outPermission"),
+    ('update_product_addPermission', "update_product_addPermission"),
+    ('update_product_outPermission', "update_product_outPermission"),
+    ('add_product_addPermission', "add_product_addPermission"),
+    ('add_product_outPermission', "add_product_outPermission"),
+    ('delete_product_outPermission', "delete_product_outPermission"),
+    ('delete_product_addPermission', "delete_product_addPermission"),
     ('receive_product', "receive_product"),
     ('create_purchase', "create_purchase"),
     ('create_sale', "create_sale"),
@@ -190,9 +198,13 @@ class emails(models.Model):
 
 class RecordHistory(models.Model):
     id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=25, choices=RecordHistory_types)
+    type = models.CharField(max_length=40, choices=RecordHistory_types)
     product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.CASCADE, null=True,
                                 blank=True)
+    outPermissions = models.ForeignKey("Store.OutPermissions", db_column='outPermissions', on_delete=models.CASCADE, null=True,
+                                       blank=True)
+    addPermissions = models.ForeignKey("Store.AddPermissions", db_column='addPermissions', on_delete=models.CASCADE, null=True,
+                                       blank=True)
     customer = models.ForeignKey(Customers, db_column='customer',
                                  on_delete=models.CASCADE, null=True, blank=True)
     employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.CASCADE, null=True, blank=True,
