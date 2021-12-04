@@ -10,7 +10,7 @@ from Store.models import *
 
 
 def add_record_history(activity_type, activity_id, add_by, product=None, customer=None, employee=None, sale=None,
-                       outpermissions =None, addpermissions=None):
+                       outpermissions =None, addpermissions=None,purchase=None):
     RecordHistory.objects.create(
         type=activity_type,
         activity_id=activity_id,
@@ -18,6 +18,7 @@ def add_record_history(activity_type, activity_id, add_by, product=None, custome
         customer=customer,
         employee=employee,
         sale=sale,
+        purchase=purchase,
         add_by=add_by,
         outPermissions=outpermissions,
         addPermissions=addpermissions,
@@ -138,6 +139,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         instance.discount_type = validated_data.get('discount_type', instance.discount_type)
         instance.paid = validated_data.get('paid', instance.paid)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
+        instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM

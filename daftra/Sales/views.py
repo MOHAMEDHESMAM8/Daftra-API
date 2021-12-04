@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import *
 from Users.models import RecordHistory
-
+from django.db.models import Q, Max, F
+import json
 
 # update Invoice paid status
 def update_invoice_status(invoice, current=0, update=0):
@@ -51,11 +52,8 @@ def get_all_invoice(request):
         DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
         invoice.total,
         invoice.paid,
-        invoice.customer,
-        user.first_name,
-        record.type,
-        record.add_by,
-        DATE_FORMAT(record.created_at, "%d-%m-%Y %H:%m") as created_at_record
+        invoice.customer as customer_id,
+        user.first_name as customer_name
         FROM
             sales_saleinvoice AS invoice
         INNER JOIN users_customers AS customer
@@ -64,14 +62,15 @@ def get_all_invoice(request):
         INNER JOIN users_user AS user
         ON
         user.id = customer.user
-        JOIN users_recordhistory as record
-        on invoice.id = record.id
-        AND record.type = "create_sale"
-        or record.type = "create_payment"
-        or record.type = "delete_payment"
         """)
         json_format = json.dumps(dictfetchall(cursor))
-    return HttpResponse(json_format, content_type='application/json; charset=utf-8')
+        data = json.loads(json_format)
+        for item in data:
+            invoice = item.get("id")
+            record = RecordHistory.objects.filter(sale=invoice).latest("id")
+            item["last_activaty"] = record.type
+            item['created_at'] = record.created_at.strftime("%m/%d/%Y, %H:%M:%S")
+    return HttpResponse(data, content_type='application/json; charset=utf-8')
 
 
 # todo  check from front upload photo is working
@@ -288,19 +287,17 @@ def get_invoice_recordhistory(request, invoice):
     return HttpResponse(data, content_type='application/json; charset=utf-8')
 
 
-@api_view(['GET'])
-# # @permission_classes(())
-def get_invoice_store(request, invoice):
-    products = SaleInvoice_products.objects.filter(sales_invoice_id=invoice)
-    data=[]
-    print(products)
-    for item in products:
-        obj={
-            "product_name":item.product.name,
-            "product_id":item.product.id,
-            "quantity":item.quantity,
-            "count_after":item.count_after,
-        }
-        data.append(obj)
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
-
+# @api_view(['GET'])
+# # # @permission_classes(())
+# def get_invoice_store(request, invoice):
+#     products = SaleInvoice_products.objects.filter(sales_invoice_id=invoice)
+#     data = []
+#     for item in products:
+#         obj = {
+#             "product_name": item.product.name,
+#             "product_id": item.product.id,
+#             "quantity": item.quantity,
+#             "count_after": item.count_after,
+#         }
+#         data.append(obj)
+#     return HttpResponse(data, content_type='application/json; charset=utf-8')

@@ -172,6 +172,7 @@ class Employees(models.Model):
 
 class Suppliers(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', related_name='supplier')
     business_name = models.CharField(max_length=25)
     Tax_id = models.CharField(max_length=30, blank=True, null=True)
     commercial_record = models.CharField(max_length=30, blank=True, null=True)
