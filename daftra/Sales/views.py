@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import *
 from Users.models import RecordHistory
-from django.db.models import Q, Max, F
 import json
 
 # update Invoice paid status
@@ -70,7 +69,8 @@ def get_all_invoice(request):
             record = RecordHistory.objects.filter(sale=invoice).latest("id")
             item["last_activaty"] = record.type
             item['created_at'] = record.created_at.strftime("%m/%d/%Y, %H:%M:%S")
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+        final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 # todo  check from front upload photo is working
@@ -283,8 +283,8 @@ def get_invoice_recordhistory(request, invoice):
                     "invoice_status": invoice_obj.paid,
                 }
             data.append(obj)
-
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+        final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 # @api_view(['GET'])
@@ -300,4 +300,5 @@ def get_invoice_recordhistory(request, invoice):
 #             "count_after": item.count_after,
 #         }
 #         data.append(obj)
-#     return HttpResponse(data, content_type='application/json; charset=utf-8')
+#     final=json.dumps(data)
+#     return HttpResponse(final, content_type='application/json; charset=utf-8')

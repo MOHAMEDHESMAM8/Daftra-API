@@ -22,6 +22,7 @@ class Appointments(models.Model):
     duration = models.TimeField()
     action = models.ForeignKey(actions, on_delete=models.CASCADE, db_column="action")
     notes = models.TextField(blank=True, null=True)
-    employee = models.ForeignKey("Users.Employees", on_delete=models.CASCADE, db_column="employee",related_name= "appointment_employee")
+    employee = models.ForeignKey("Users.Employees", on_delete=models.CASCADE, db_column="employee",
+                                 related_name="appointment_employee", null=True, blank=True)
     status = models.CharField(max_length=30, choices=status, default="scheduled")
     add_by = models.ForeignKey("Users.Employees", on_delete=models.CASCADE, db_column="add_by")

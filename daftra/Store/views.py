@@ -33,7 +33,8 @@ def get_product_store(request, product):
             "count_after": item.count_after,
         }
         data.append(obj)
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 # TODO add and update have same data in here and invoice (mabye table for sold and update)
@@ -182,7 +183,8 @@ def get_product_recordhistory(request, product):
             }
             data.append(obj)
 
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 # get percentage last month
@@ -408,7 +410,8 @@ class AllPermissions(APIView):
                 "notes": item.notes,
             }
             data.append(obj)
-        return HttpResponse(data, content_type='application/json; charset=utf-8')
+        final = json.dumps(data)
+        return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 class CreateOutPermission(APIView):
@@ -534,7 +537,8 @@ def get_add_permissions_recordhistory(request, addpermission):
                 "id": item.addPermissions.id,
             }
             data.append(obj)
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
 @api_view(['GET'])
@@ -552,4 +556,5 @@ def get_out_permissions_recordhistory(request, outpermission):
                 "id": item.outPermissions.id,
             }
             data.append(obj)
-    return HttpResponse(data, content_type='application/json; charset=utf-8')
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')

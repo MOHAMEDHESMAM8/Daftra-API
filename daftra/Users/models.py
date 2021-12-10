@@ -176,7 +176,6 @@ class Suppliers(models.Model):
     business_name = models.CharField(max_length=25)
     Tax_id = models.CharField(max_length=30, blank=True, null=True)
     commercial_record = models.CharField(max_length=30, blank=True, null=True)
-    currency = models.CharField(max_length=10)
 
 
 class Tax(models.Model):
@@ -232,14 +231,17 @@ class deletedActivities(models.Model):
 
 class Notes(models.Model):
     id = models.AutoField(primary_key=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField()
     notes = models.TextField()
     type = models.CharField(max_length=20, choices=notes_types)
+    person_id = models.IntegerField()
     # Todo اجراء تنفيذ CRUD
     # Todo حدث الحالة الى CRUD
 
 
+
 class NotesAttachment(models.Model):
     id = models.AutoField(primary_key=True)
-    attachment = models.FileField(upload_to='Files/%y/%m')
+    attachment = models.FileField(upload_to='Notes/%y/%m')
     note = models.ForeignKey(Notes, db_column='note', on_delete=models.CASCADE)
+
