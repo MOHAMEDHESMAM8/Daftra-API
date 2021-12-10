@@ -11,6 +11,7 @@ from .serializers import *
 from Users.models import RecordHistory
 import json
 
+
 # update Invoice paid status
 def update_invoice_status(invoice, current=0, update=0):
     obj = SaleInvoice.objects.get(pk=invoice)
@@ -286,6 +287,50 @@ def get_invoice_recordhistory(request, invoice):
         final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
 
+
+@api_view(['GET'])
+# @permission_classes(())
+def get_all_customer(request):
+    customers = Customers.objects.all().order_by("id")
+    data = []
+    for item in customers:
+        obj = {
+            "name": item.user.first_name,
+            "id": item.id
+        }
+        data.append(obj)
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
+
+
+@api_view(['GET'])
+# @permission_classes(())
+def get_all_products(request):
+    products = Products.objects.filter(deactivate=False).order_by("id")
+    data = []
+    for item in products:
+        obj = {
+            "name": item.name,
+            "id": item.id,
+            "Count": item.product_count,
+            "selling_price": item.selling_price,
+        }
+        data.append(obj)
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
+@api_view(['GET'])
+# @permission_classes(())
+def get_all_warehouse(request):
+    warehouses = Warehouses.objects.filter(deactivate=False).order_by("id")
+    data = []
+    for item in warehouses:
+        obj = {
+            "name": item.name,
+            "id": item.id,
+        }
+        data.append(obj)
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 # @api_view(['GET'])
 # # # @permission_classes(())

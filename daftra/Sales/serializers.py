@@ -320,3 +320,5 @@ class InvoiceStoreSerializer(serializers.ModelSerializer):
         for key, val in product.items():
             data.update({key: val})
         return data
+
+
