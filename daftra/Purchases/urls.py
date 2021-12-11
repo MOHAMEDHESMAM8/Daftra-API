@@ -12,5 +12,7 @@ urlpatterns = [
     path('PaymentCreate', PaymentCreate.as_view(), name='PaymentCreate'),
     path('InvoiceStore/Invoice=<int:invoice>', InvoiceStore.as_view(), name='InvoiceStore'),
     path('RecordHistory/<int:invoice>', csrf_exempt(get_invoice_recordhistory), name='recordHistory'),
+    path('allSupplierList', csrf_exempt(get_all_supplier), name='all supplier list'),
+
 ]
 

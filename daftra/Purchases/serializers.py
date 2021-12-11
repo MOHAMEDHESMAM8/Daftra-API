@@ -63,7 +63,6 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
         products = validated_data.pop('PurchaseInvoice_products')
         attachment = validated_data.pop("Attachments")
 
-        # todo change user to instance in view from token
         invoice = PurchaseInvoice.objects.create(supplier_id=validated_data.pop('supplier'),
                                                  warehouse_id=validated_data.pop('warehouse'),
                                                  discount=validated_data.pop('discount'),
@@ -76,7 +75,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                  payment_method=validated_data.pop('payment_method'),
                                                  payment_no=validated_data.pop('payment_no'),
                                                  total=validated_data.pop('total'),
-                                                 add_by_id=user,
+                                                 add_by=user,
                                                  )
         PurchaseInvoice_productsSerializer.create(PurchaseInvoice_productsSerializer(), validated_data=products,
                                                   invoice=invoice, warehouse=invoice.warehouse)

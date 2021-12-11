@@ -155,7 +155,6 @@ class RolePermissions(models.Model):
     can_add_supplier = models.BooleanField(default=False)
     can_edit_Or_delete_supplier = models.BooleanField(default=False)
     can_show_suppliers = models.BooleanField(default=False)
-    can_show_his_suppliers = models.BooleanField(default=False)
     can_add_notes = models.BooleanField(default=False)
     can_add_employee = models.BooleanField(default=False)
     can_edit_Or_delete_employee = models.BooleanField(default=False)

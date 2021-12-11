@@ -4,6 +4,7 @@ from django.http import HttpResponse
 import json
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -13,16 +14,16 @@ from Sales.models import *
 from Users.models import RecordHistory
 from datetime import datetime, timedelta
 from django.db.models import Q, Exists, OuterRef
-
-
+from .permissions import IsEmployee, RolesPermissionsCheck
 
 
 @api_view(['GET'])
-# # @permission_classes(())
+@permission_classes([IsEmployee, IsAuthenticated])
 def get_product_store(request, product):
+    r = RolesPermissionsCheck(request, "can_show_products")
+    r.has_permission()
     products = SaleInvoice_products.objects.filter(product_id=product)
     data = []
-    print(products)
     for item in products:
         obj = {
             "invoice_id": item.sales_invoice.id,
@@ -39,13 +40,12 @@ def get_product_store(request, product):
 
 # TODO add and update have same data in here and invoice (mabye table for sold and update)
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_product_recordhistory(request, product):
     events = RecordHistory.objects.filter(product_id=product)
     data = []
-
     for item in events:
-        if item.type == 'sold_product' or item.type == 'update_product_invoice' :
+        if item.type == 'sold_product' or item.type == 'update_product_invoice':
             try:
                 data_obj = SaleInvoice_products.objects.get(pk=item.activity_id)
                 obj = {
@@ -349,6 +349,7 @@ class ProductDetails(APIView):
 
 
 class CreateProduct(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = Products.objects.all()
@@ -356,6 +357,8 @@ class CreateProduct(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        r = RolesPermissionsCheck(request, "can_add_product")
+        r.has_permission()
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -364,6 +367,7 @@ class CreateProduct(APIView):
 
 
 class UpdateProduct(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, product):
         product = Products.objects.get(id=product)
@@ -371,6 +375,8 @@ class UpdateProduct(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, product):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+        r.has_permission()
         product = Products.objects.get(id=product)
         serializer = ProductSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -379,6 +385,8 @@ class UpdateProduct(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, product):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+        r.has_permission()
         product = Products.objects
         if product.SaleInvoice.all().exists():
             return Response("product can't be deleted", status=status.HTTP_400_BAD_REQUEST)
@@ -388,7 +396,12 @@ class UpdateProduct(APIView):
 
 
 class AllPermissions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
     def get(self, request):
+        r = RolesPermissionsCheck(request, "can_show_storePermissions")
+        r.has_permission()
+
         out = OutPermissions.objects.all()
         add = AddPermissions.objects.all()
         data = []
@@ -415,6 +428,7 @@ class AllPermissions(APIView):
 
 
 class CreateOutPermission(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = OutPermissions.objects.all()
@@ -422,6 +436,9 @@ class CreateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        r = RolesPermissionsCheck(request, "can_add_storePermission")
+        r.has_permission()
+
         serializer = OutPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -430,6 +447,7 @@ class CreateOutPermission(APIView):
 
 
 class CreateAddPermission(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = AddPermissions.objects.all()
@@ -437,6 +455,8 @@ class CreateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        r = RolesPermissionsCheck(request, "can_add_storePermission")
+        r.has_permission()
         serializer = AddPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -445,6 +465,7 @@ class CreateAddPermission(APIView):
 
 
 class UpdateOutPermission(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, permission):
         products = OutPermissions.objects.get(id=permission)
@@ -452,14 +473,18 @@ class UpdateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        r.has_permission()
         product = OutPermissions.objects.get(id=permission)
         serializer = OutPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
-            serializer.update(instance=product, validated_data=request.data)
+            serializer.update(instance=product, validated_data=request.data,user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        r.has_permission()
         permission_obj = OutPermissions.objects.get(id=permission)
         for item in permission_obj.OutPermissions_Products.all():
             # change product count
@@ -484,6 +509,7 @@ class UpdateOutPermission(APIView):
 
 
 class UpdateAddPermission(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, permission):
         products = AddPermissions.objects.get(id=permission)
@@ -491,14 +517,18 @@ class UpdateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        r.has_permission()
         product = AddPermissions.objects.get(id=permission)
         serializer = AddPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
-            serializer.update(instance=product, validated_data=request.data)
+            serializer.update(instance=product, validated_data=request.data,user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        r.has_permission()
         permission_obj = AddPermissions.objects.get(id=permission)
         for item in permission_obj.AddPermissions_Products.all():
             # change product count
@@ -523,7 +553,7 @@ class UpdateAddPermission(APIView):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_add_permissions_recordhistory(request, addpermission):
     events = RecordHistory.objects.filter(addPermissions_id=addpermission)
     data = []
@@ -542,7 +572,7 @@ def get_add_permissions_recordhistory(request, addpermission):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_out_permissions_recordhistory(request, outpermission):
     events = RecordHistory.objects.filter(outPermissions_id=outpermission)
     data = []

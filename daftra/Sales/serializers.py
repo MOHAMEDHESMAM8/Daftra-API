@@ -10,7 +10,7 @@ from Store.models import *
 
 
 def add_record_history(activity_type, activity_id, add_by, product=None, customer=None, employee=None, sale=None,
-                       outpermissions =None, addpermissions=None,purchase=None):
+                       outpermissions=None, addpermissions=None, purchase=None):
     RecordHistory.objects.create(
         type=activity_type,
         activity_id=activity_id,
@@ -98,7 +98,6 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
             warehouse = Warehouses.objects.get(pk=validated_data.get('warehouse'))
             product_count(operation=">", product=product, quantity=item["quantity"], warehouse=warehouse)
 
-        # todo change user to instance in view from token
         invoice = SaleInvoice.objects.create(customer_id=validated_data.pop('customer'),
                                              warehouse_id=validated_data.pop('warehouse'),
                                              discount=validated_data.pop('discount'),
@@ -111,7 +110,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              payment_method=validated_data.pop('payment_method'),
                                              payment_no=validated_data.pop('payment_no'),
                                              total=validated_data.pop('total'),
-                                             sold_by_id=user,
+                                             sold_by=user,
                                              )
         SaleInvoice_productsSerializer.create(SaleInvoice_productsSerializer(), validated_data=products,
                                               invoice=invoice, warehouse=invoice.warehouse)
@@ -132,7 +131,6 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         instance.payment_method = validated_data.get('payment_method', instance.payment_method)
         instance.payment_no = validated_data.get('payment_no', instance.payment_no)
         instance.total = validated_data.get('total', instance.total)
-        instance.sold_by_id = validated_data.get('sold_by', instance.sold_by_id)
         instance.warehouse_id = validated_data.get('warehouse', instance.warehouse_id)
         instance.discount = validated_data.get('discount', instance.discount)
         instance.notes = validated_data.get('notes', instance.notes)
@@ -144,7 +142,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
         # FOR CHECK IF USER DELETE ANY ITEM
         products = validated_data.get('SaleInvoice_products')
-        product_ids = [item['id'] for item in products]
+        product_ids = [item['product'] for item in products]
         for product in instance.SaleInvoice_products.all():
             if product.id not in product_ids:
                 deleted_product = deletedActivities.objects.create(
@@ -320,5 +318,3 @@ class InvoiceStoreSerializer(serializers.ModelSerializer):
         for key, val in product.items():
             data.update({key: val})
         return data
-
-

@@ -160,7 +160,7 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
 
         return permission
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data,user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
         instance.add_by_id = validated_data.pop("add_by", instance.add_by_id)
         instance.notes = validated_data.pop("add_by", instance.notes)
@@ -182,7 +182,7 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
                 )
                 # add record history
                 add_record_history(activity_type="delete_product_outPermission",
-                                   add_by=instance.add_by,
+                                   add_by=user,
                                    activity_id=deleted_product.id,
                                    product=product.product,
                                    outpermissions=instance
@@ -237,15 +237,14 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
                               warehouse=instance.warehouse)
                 # add record history
                 add_record_history(activity_type="add_product_outPermission",
-                                   add_by=instance.add_by,
+                                   add_by=user,
                                    activity_id=product_obj.id,
                                    product=product_obj,
                                    outpermissions=instance
                                    )
-        # TODO change add_by to request.user
         # create history record
         add_record_history(activity_type="update_outPermission",
-                           add_by=instance.add_by,
+                           add_by=user,
                            activity_id=instance.id,
                            outpermissions=instance
                            )
@@ -307,7 +306,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                            )
         return permission
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data,user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
         instance.add_by_id = validated_data.pop("add_by", instance.add_by_id)
         instance.notes = validated_data.pop("add_by", instance.notes)
@@ -329,7 +328,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                 )
                 # add record history
                 add_record_history(activity_type="delete_product_addPermission",
-                                   add_by=instance.add_by,
+                                   add_by=user,
                                    activity_id=deleted_product.id,
                                    product=product.product,
                                    addpermissions=instance
@@ -363,7 +362,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                 product_obj.save()
                 # add record history
                 add_record_history(activity_type="update_product_addPermission",
-                                   add_by=instance.add_by,
+                                   add_by=user,
                                    activity_id=product_obj.id,
                                    product=product_obj.product,
                                    addpermissions=instance
@@ -385,15 +384,14 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                               warehouse=instance.warehouse)
                 # add record history
                 add_record_history(activity_type="add_product_addPermission",
-                                   add_by=instance.add_by,
+                                   add_by=user,
                                    activity_id=product_obj.id,
                                    product=product_obj,
                                    addpermissions=instance
                                    )
-        # TODO change add_by to request.user
         # create history record
         add_record_history(activity_type="update_addPermission",
-                           add_by=instance.add_by,
+                           add_by=user,
                            activity_id=instance.id,
                            addpermissions=instance
                            )

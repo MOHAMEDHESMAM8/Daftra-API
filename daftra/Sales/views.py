@@ -8,8 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-
-from .permissions import RolesPermissionsCheck
+from .permissions import RolesPermissionsCheck, IsEmployee
 from .serializers import *
 from Users.models import RecordHistory
 import json
@@ -47,7 +46,7 @@ def dictfetchall(cursor):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
     with connection.cursor() as cursor:
         if request.user.employee.role.can_show_saleBills:
@@ -68,8 +67,6 @@ def get_all_invoice(request):
                  user.id = customer.user
                  """)
         elif request.user.employee.role.can_show_his_saleBills:
-            r = RolesPermissionsCheck(request, "can_show_his_saleBills")
-            r.has_permission()
             n = request.user.employee.id
             query = f"""SELECT
                             invoice.id,
@@ -88,6 +85,9 @@ def get_all_invoice(request):
                             user.id = customer.user
                             where invoice.sold_by = {n} """
             cursor.execute(query)
+        else:
+            r = RolesPermissionsCheck(request, "can_show_saleBills")
+            r.has_permission()
 
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
@@ -103,10 +103,10 @@ def get_all_invoice(request):
 
 # todo  check from front upload photo is working
 class createSaleInvoice(APIView):
-    permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated, IsEmployee]
     # parser_classes = [MultiPartParser, FormParser]
-    # todo return parser class while use front
+
+
     def get(self, request):
         invoices = SaleInvoice.objects.all()
         serializer = SaleInvoiceSerializer(invoices, many=True)
@@ -117,16 +117,16 @@ class createSaleInvoice(APIView):
         r.has_permission()
         serializer = SaleInvoiceSerializer(data=request.data)
         if serializer.is_valid():
-            invoice = serializer.create(validated_data=request.data, user=1)
+            invoice = serializer.create(validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # todo  check from front upload photo is working
 class updateSaleInvoice(APIView):
-    permission_classes = [IsAuthenticated]
-    # parser_classes = [MultiPartParser, FormParser]
-    # todo return parser class while use front
+    permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
+
 
     def get(self, request, id):
         invoice = SaleInvoice.objects.get(pk=id)
@@ -146,7 +146,7 @@ class updateSaleInvoice(APIView):
 
 
 class ShowPayments(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployee]
     def get(self, request, invoice):
 
         payments = SaleInvoice.objects.get(pk=invoice)
@@ -155,7 +155,7 @@ class ShowPayments(APIView):
 
 
 class PaymentDetails(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, payment):
@@ -176,10 +176,9 @@ class PaymentDetails(APIView):
             serializer.save()
 
             # create record history
-            # TODO change add_by to user in request
             add_record_history(activity_type="update_payment",
                                sale=payment_obj.sales_invoice,
-                               add_by=payment_obj.Collected_by,
+                               add_by=request.user.employee,
                                activity_id=payment,
                                )
 
@@ -197,10 +196,9 @@ class PaymentDetails(APIView):
             payment=obj.id,
         )
         # create record history
-        # TODO change add_by to user in request
         add_record_history(activity_type="delete_payment",
                            sale=obj.sales_invoice,
-                           add_by=obj.Collected_by,
+                           add_by=request.user.employee,
                            activity_id=delete_payment.id,
                            )
         obj.delete()
@@ -208,7 +206,7 @@ class PaymentDetails(APIView):
 
 
 class PaymentCreate(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
@@ -233,7 +231,7 @@ class PaymentCreate(APIView):
 
 
 class InvoiceStore(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
         products = SaleInvoice_products.objects.filter(sales_invoice=invoice)
@@ -244,7 +242,7 @@ class InvoiceStore(APIView):
 # todo send email recordhistory
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_invoice_recordhistory(request, invoice):
     events = RecordHistory.objects.filter(sale=invoice)
     data = []
@@ -326,7 +324,7 @@ def get_invoice_recordhistory(request, invoice):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_all_customer(request):
     customers = Customers.objects.all().order_by("id")
     data = []
@@ -341,7 +339,7 @@ def get_all_customer(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_all_products(request):
     products = Products.objects.filter(deactivate=False).order_by("id")
     data = []
@@ -358,7 +356,7 @@ def get_all_products(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_all_warehouse(request):
     warehouses = Warehouses.objects.filter(deactivate=False).order_by("id")
     data = []

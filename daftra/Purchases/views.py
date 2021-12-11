@@ -3,13 +3,14 @@ from django.http import HttpResponse
 import json
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import *
 from Users.models import RecordHistory
-
+from .permissions import IsEmployee, RolesPermissionsCheck
 
 
 # update Invoice paid status
@@ -32,6 +33,7 @@ def update_invoice_status(invoice, current=0, update=0):
     else:
         return "error"
 
+
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
@@ -42,24 +44,47 @@ def dictfetchall(cursor):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
     with connection.cursor() as cursor:
-        cursor.execute("""SELECT
-        invoice.id,
-        DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-        invoice.total,
-        invoice.paid,
-        invoice.supplier as supplier_id,
-        user.first_name as supplier_name
-        FROM
-            purchases_purchaseinvoice AS invoice
-        INNER JOIN users_suppliers AS supplier
-        ON
-            invoice.supplier = supplier.id
-        INNER JOIN users_user AS user
-        ON user.id = supplier.user
-        """)
+        if request.user.employee.role.can_show_purchaseBills:
+            cursor.execute("""SELECT
+           invoice.id,
+           DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+           invoice.total,
+           invoice.paid,
+           invoice.supplier as supplier_id,
+           user.first_name as supplier_name
+           FROM
+               purchases_purchaseinvoice AS invoice
+           INNER JOIN users_suppliers AS supplier
+           ON
+               invoice.supplier = supplier.id
+           INNER JOIN users_user AS user
+           ON user.id = supplier.user
+           """)
+        elif request.user.employee.role.can_show_his_purchaseBills:
+            n = request.user.employee.id
+            query = f"""SELECT
+               invoice.id,
+               DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+               invoice.total,
+               invoice.paid,
+               invoice.supplier as supplier_id,
+               user.first_name as supplier_name
+               FROM
+                   purchases_purchaseinvoice AS invoice
+               INNER JOIN users_suppliers AS supplier
+               ON
+                   invoice.supplier = supplier.id
+               INNER JOIN users_user AS user
+               ON user.id = supplier.user
+                where invoice.add_by = {n} """
+            cursor.execute(query)
+        else:
+            r = RolesPermissionsCheck(request, "can_show_purchaseBills")
+            r.has_permission()
+
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
         for item in data:
@@ -70,27 +95,32 @@ def get_all_invoice(request):
         final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
 
+
 # todo  check from front upload photo is working
 class createPurchaseInvoice(APIView):
-    # parser_classes = [MultiPartParser, FormParser]
-    # todo return parser class while use front
+    permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
+
     def get(self, request):
         invoices = PurchaseInvoice.objects.all()
         serializer = PurchaseInvoiceSerializer(invoices, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
+        r = RolesPermissionsCheck(request, "can_add_purchaseBill")
+        r.has_permission()
         serializer = PurchaseInvoiceSerializer(data=request.data)
         if serializer.is_valid():
-            invoice = serializer.create(validated_data=request.data, user=1)
+            serializer.create(validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # todo  check from front upload photo is working
 class updatePurchaseInvoice(APIView):
-    # parser_classes = [MultiPartParser, FormParser]
-    # todo return parser class while use front
+    permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
+
 
     def get(self, request, invoice):
         invoice = PurchaseInvoice.objects.get(pk=invoice)
@@ -98,16 +128,18 @@ class updatePurchaseInvoice(APIView):
         return Response(serializer.data)
 
     def put(self, request, invoice, format=None):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        r.has_permission()
         invoice = PurchaseInvoice.objects.get(pk=invoice)
         serializer = PurchaseInvoiceSerializer(invoice, request.data)
         if serializer.is_valid():
             serializer.update(instance=invoice, validated_data=request.data)
-
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShowPayments(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
         payments = PurchaseInvoice.objects.get(pk=invoice)
@@ -116,6 +148,7 @@ class ShowPayments(APIView):
 
 
 class PaymentDetails(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, payment):
@@ -136,10 +169,9 @@ class PaymentDetails(APIView):
             serializer.save()
 
             # create record history
-            # TODO change add_by to user in request
             add_record_history(activity_type="update_payment",
                                purchase=payment_obj.purchase_invoice,
-                               add_by=payment_obj.Collected_by,
+                               add_by=request.user.employee,
                                activity_id=payment,
                                )
 
@@ -157,10 +189,9 @@ class PaymentDetails(APIView):
             payment=obj.id,
         )
         # create record history
-        # TODO change add_by to user in request
         add_record_history(activity_type="delete_payment",
                            purchase=obj.purchase_invoice,
-                           add_by=obj.Collected_by,
+                           add_by=request.user.employee,
                            activity_id=delete_payment.id,
                            )
         obj.delete()
@@ -168,9 +199,12 @@ class PaymentDetails(APIView):
 
 
 class PaymentCreate(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
+        r = RolesPermissionsCheck(request, "can_add_paymentForBills")
+        r.has_permission()
         serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
             # check the total for invoice
@@ -178,7 +212,6 @@ class PaymentCreate(APIView):
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
 
             serializer.save()
-
             # create record history
             invoice = PurchasePayments.objects.get(pk=serializer.data['sales_invoice'])
             employee = Employees.objects.get(pk=serializer.data['Collected_by'])
@@ -192,16 +225,18 @@ class PaymentCreate(APIView):
 
 
 class InvoiceStore(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
     def get(self, request, invoice):
         products = PurchaseInvoice_products.objects.filter(sales_invoice=invoice)
         serializer = InvoiceStoreSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# todo send email recordhistory
 
+# todo send email recordhistory
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_invoice_recordhistory(request, invoice):
     events = RecordHistory.objects.filter(purchase=invoice)
     data = []
@@ -280,3 +315,19 @@ def get_invoice_recordhistory(request, invoice):
             data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsEmployee])
+def get_all_supplier(request):
+    customers = Suppliers.objects.all().order_by("id")
+    data = []
+    for item in customers:
+        obj = {
+            "name": item.user.first_name,
+            "id": item.id
+        }
+        data.append(obj)
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
+
