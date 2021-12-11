@@ -219,9 +219,7 @@ class PaymentCreate(APIView):
             # check the total for invoice
             if update_invoice_status(invoice=request.data['sales_invoice'], current=request.data['Amount']) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
-
             serializer.save()
-
             # create record history
             invoice = SaleInvoice.objects.get(pk=serializer.data['sales_invoice'])
             employee = Employees.objects.get(pk=serializer.data['Collected_by'])
@@ -235,8 +233,9 @@ class PaymentCreate(APIView):
 
 
 class InvoiceStore(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, invoice):
-        permission_classes = [IsAuthenticated]
         products = SaleInvoice_products.objects.filter(sales_invoice=invoice)
         serializer = InvoiceStoreSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -245,7 +244,7 @@ class InvoiceStore(APIView):
 # todo send email recordhistory
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated])
 def get_invoice_recordhistory(request, invoice):
     events = RecordHistory.objects.filter(sale=invoice)
     data = []
@@ -327,7 +326,7 @@ def get_invoice_recordhistory(request, invoice):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated])
 def get_all_customer(request):
     customers = Customers.objects.all().order_by("id")
     data = []
@@ -342,7 +341,7 @@ def get_all_customer(request):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated])
 def get_all_products(request):
     products = Products.objects.filter(deactivate=False).order_by("id")
     data = []
@@ -359,7 +358,7 @@ def get_all_products(request):
 
 
 @api_view(['GET'])
-# @permission_classes(())
+@permission_classes([IsAuthenticated])
 def get_all_warehouse(request):
     warehouses = Warehouses.objects.filter(deactivate=False).order_by("id")
     data = []
