@@ -1,1 +1,1 @@
-web: gunicorn daftra.daftra.wsgi --log-file -
+web: gunicorn daftra.daftra:wsgi --log-file -
