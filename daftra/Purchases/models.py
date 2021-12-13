@@ -39,6 +39,7 @@ class PurchaseInvoice(models.Model):
     payment_no = models.IntegerField(null=True, blank=True)
     Received = models.BooleanField(default=False)
     total = models.FloatField()
+    date = models.DateField(null=True, blank=True)
 
 
 class Attachments(models.Model):

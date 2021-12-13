@@ -39,22 +39,6 @@ class Factory:
             return self.employee.role.can_show_products
         elif self.type == "can_edit_Or_delete_products":
             return self.employee.role.can_edit_Or_delete_products
-        elif self.type == "can_add_saleBill":
-            return self.employee.role.can_add_saleBill
-        elif self.type == "can_show_saleBills":
-            return self.employee.role.can_show_saleBills
-        elif self.type == "can_show_his_saleBills":
-            return self.employee.role.can_show_his_saleBills
-        elif self.type == "can_edit_Or_delete_saleBill":
-            return self.employee.role.can_edit_Or_delete_saleBill
-        elif self.type == "can_add_paymentForBills":
-            return self.employee.role.can_add_paymentForBills
-        elif self.type == "can_edit_feesSettings":
-            return self.employee.role.can_edit_feesSettings
-        elif self.type == "can_add_customer":
-            return self.employee.role.can_add_customer
-        elif self.type == "can_show_customers":
-            return self.employee.role.can_show_customers
         elif self.type == "can_edit_Or_delete_customers":
             return self.employee.role.can_edit_Or_delete_customers
         elif self.type == "can_add_storePermission":
@@ -63,28 +47,6 @@ class Factory:
             return self.employee.role.can_edit_Or_delete_storePermission
         elif self.type == "can_show_storePermissions":
             return self.employee.role.can_show_storePermissions
-        elif self.type == "can_add_purchaseBill":
-            return self.employee.role.can_add_purchaseBill
-        elif self.type == "can_edit_Or_delete_purchaseBill":
-            return self.employee.role.can_edit_Or_delete_purchaseBill
-        elif self.type == "can_show_purchaseBills":
-            return self.employee.role.can_show_purchaseBills
-        elif self.type == "can_show_his_purchaseBills":
-            return self.employee.role.can_show_his_purchaseBills
-        elif self.type == "can_add_supplier":
-            return self.employee.role.can_add_supplier
-        elif self.type == "can_edit_Or_delete_supplier":
-            return self.employee.role.can_edit_Or_delete_supplier
-        elif self.type == "can_show_suppliers":
-            return self.employee.role.can_show_suppliers
-        elif self.type == "can_add_notes":
-            return self.employee.role.can_add_notes
-        elif self.type == "can_add_employee":
-            return self.employee.role.can_add_employee
-        elif self.type == "can_edit_Or_delete_employee":
-            return self.employee.role.can_edit_Or_delete_employee
-        elif self.type == "can_management_roles":
-            return self.employee.role.can_management_roles
 
 
 class IsEmployee(permissions.BasePermission):

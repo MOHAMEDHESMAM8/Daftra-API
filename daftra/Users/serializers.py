@@ -56,18 +56,15 @@ class SuppliersSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user_data = validated_data.pop("user")
         user = User.objects.get(id=instance.user.id)
-
         user.first_name = user_data['first_name']
         user.last_name = user_data["last_name"]
         user.phone = user_data['phone']
         user.telephone = user_data['telephone']
-        user.type = user_data['type']
         user.middle_name = user_data['middle_name']
         user.address = user_data['address']
         user.city = user_data['city']
         user.country = user_data['country']
         user.notes = user_data['notes']
-        # user.email = user_data['email']
         user.postal_code = user_data['postal_code']
         instance.business_name = validated_data.get("business_name")
         instance.Tax_id = validated_data.get("Tax_id")
@@ -83,4 +80,66 @@ class SupplierPurchasesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseInvoice
         fields = ["Received", "created_at", "id", "total"]
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["country", "city", "first_name", "last_name", "phone", "phone", "telephone", "middle_name", "address",
+                  "notes", "email", "postal_code"]
+
+
+class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
+    user = CreateUserSerializer()
+
+    class Meta:
+        model = Customers
+        fields = ['currency', 'user']
+
+    def create(self, validated_data):
+        user = validated_data.pop("user")
+        user = CreateUserSerializer.create(CreateUserSerializer(), user)
+        customer = Customers.objects.create(user=user, currency=validated_data.pop("currency"))
+        return customer
+
+
+class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
+    user = CreateUserSerializer()
+
+    class Meta:
+        model = Employees
+        fields = ['role', 'photo', 'user']
+
+    def create(self, validated_data):
+        user = validated_data.pop("user")
+        user = CreateUserSerializer.create(CreateUserSerializer(), user)
+        employee = Employees.objects.create(user=user, role_id=validated_data.pop("role"),
+                                            photo=validated_data.pop('photo')
+                                            )
+        return employee
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user")
+        user = User.objects.get(id=instance.user.id)
+        user.first_name = user_data['first_name']
+        user.last_name = user_data["last_name"]
+        user.phone = user_data['phone']
+        user.telephone = user_data['telephone']
+        user.middle_name = user_data['middle_name']
+        user.address = user_data['address']
+        user.city = user_data['city']
+        user.country = user_data['country']
+        user.notes = user_data['notes']
+        user.postal_code = user_data['postal_code']
+        instance.role_id = validated_data.get("role")
+        instance.photo = validated_data.get("photo")
+        user.save()
+        instance.save()
+        return instance
+
+
+class TaxSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tax
+        fields = ["tax_name", "id", "tax_value", "product_included"]
 

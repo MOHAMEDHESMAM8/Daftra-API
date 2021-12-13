@@ -158,6 +158,7 @@ class RolePermissions(models.Model):
     can_add_notes = models.BooleanField(default=False)
     can_add_employee = models.BooleanField(default=False)
     can_edit_Or_delete_employee = models.BooleanField(default=False)
+    can_show_employees = models.BooleanField(default=False)
     can_management_roles = models.BooleanField(default=False)
 
 
@@ -165,7 +166,6 @@ class Employees(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', related_name='employee')
     role = models.ForeignKey(RolePermissions, on_delete=models.CASCADE, db_column='role')
-    active = models.BooleanField(default=True)
     photo = models.ImageField(upload_to='employee/%y/%m', blank=True, null=True)
 
 

@@ -47,6 +47,7 @@ class SaleInvoice(models.Model):
     payment_method = models.CharField(choices=payment_methods, default='cash', max_length=20)
     payment_no = models.IntegerField(null=True, blank=True)
     total = models.FloatField()
+    date = models.DateField(null=True, blank=True)
 
 
 class Attachments(models.Model):

@@ -85,7 +85,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleInvoice
         fields = ['customer', 'warehouse', 'discount', 'discount_type', 'paid', 'shipping_fees', 'shipping_details',
-                  'notes', 'payment_terms', 'payment_method', 'payment_no', 'total', 'SaleInvoice_products',
+                  'notes', 'payment_terms', 'payment_method', 'payment_no', 'total', 'date', 'SaleInvoice_products',
                   'Attachments', 'sold_by']
 
     def create(self, validated_data, user):
@@ -111,6 +111,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              payment_no=validated_data.pop('payment_no'),
                                              total=validated_data.pop('total'),
                                              sold_by=user,
+                                             date =validated_data.pop("date")
                                              )
         SaleInvoice_productsSerializer.create(SaleInvoice_productsSerializer(), validated_data=products,
                                               invoice=invoice, warehouse=invoice.warehouse)
@@ -136,6 +137,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         instance.notes = validated_data.get('notes', instance.notes)
         instance.discount_type = validated_data.get('discount_type', instance.discount_type)
         instance.paid = validated_data.get('paid', instance.paid)
+        instance.date = validated_data.get('date', instance.date)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
         instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
         instance.save()
