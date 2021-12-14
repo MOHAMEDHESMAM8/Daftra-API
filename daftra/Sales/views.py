@@ -347,7 +347,7 @@ def get_all_products(request):
         obj = {
             "name": item.name,
             "id": item.id,
-            "Count": item.product_count,
+            "count": item.product_count(item.id),
             "selling_price": item.selling_price,
         }
         data.append(obj)
