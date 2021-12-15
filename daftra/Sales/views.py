@@ -114,9 +114,10 @@ class createSaleInvoice(APIView):
     def post(self, request, format=None):
         r = RolesPermissionsCheck(request, "can_add_saleBill")
         r.has_permission()
-        serializer = SaleInvoiceSerializer(data=request.data)
+
+        serializer = SaleInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
-            invoice = serializer.create(validated_data=request.data, user=request.user.employee)
+            invoice = serializer.create(validated_data=request.data.dict(), user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
