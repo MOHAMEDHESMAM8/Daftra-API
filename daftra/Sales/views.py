@@ -136,9 +136,9 @@ class updateSaleInvoice(APIView):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         r.has_permission()
         invoice = SaleInvoice.objects.get(pk=id)
-        serializer = SaleInvoiceSerializer(invoice, request.data)
+        serializer = SaleInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
-            serializer.update(instance=invoice, validated_data=request.data)
+            serializer.update(instance=invoice, validated_data=request.data.dict())
 
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -164,11 +164,12 @@ class PaymentDetails(APIView):
 
     def put(self, request, payment, format=None):
         payment_obj = SalePayments.objects.get(pk=payment)
-        serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data)
+        serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data.dict())
         if serializer.is_valid():
-            invoice = request.data['sales_invoice']
+            data = json.loads(request.data.dict())
+            invoice = data['sales_invoice']
             # check the total for invoice
-            if update_invoice_status(invoice=invoice, current=request.data['Amount'],
+            if update_invoice_status(invoice=invoice, current=data['Amount'],
                                      update=payment) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -211,10 +212,11 @@ class PaymentCreate(APIView):
     def post(self, request, format=None):
         r = RolesPermissionsCheck(request, "can_add_paymentForBills")
         r.has_permission()
-        serializer = CreateUpdatePaymentSerializer(data=request.data)
+        serializer = CreateUpdatePaymentSerializer(data=request.data.dict())
         if serializer.is_valid():
+            data=json.loads(request.data.dict())
             # check the total for invoice
-            if update_invoice_status(invoice=request.data['sales_invoice'], current=request.data['Amount']) == "error":
+            if update_invoice_status(invoice=data['sales_invoice'], current=data['Amount']) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             # create record history

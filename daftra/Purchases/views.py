@@ -109,9 +109,9 @@ class createPurchaseInvoice(APIView):
     def post(self, request, format=None):
         r = RolesPermissionsCheck(request, "can_add_purchaseBill")
         r.has_permission()
-        serializer = PurchaseInvoiceSerializer(data=request.data)
+        serializer = PurchaseInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
-            serializer.create(validated_data=request.data, user=request.user.employee)
+            serializer.create(validated_data=request.data.dict(), user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -131,9 +131,9 @@ class updatePurchaseInvoice(APIView):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         r.has_permission()
         invoice = PurchaseInvoice.objects.get(pk=invoice)
-        serializer = PurchaseInvoiceSerializer(invoice, request.data)
+        serializer = PurchaseInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
-            serializer.update(instance=invoice, validated_data=request.data)
+            serializer.update(instance=invoice, validated_data=request.data.dict())
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -160,9 +160,10 @@ class PaymentDetails(APIView):
         payment_obj = PurchasePayments.objects.get(pk=payment)
         serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data)
         if serializer.is_valid():
-            invoice = request.data['purchase_invoice']
+            data = json.loads(request.data.dict())
+            invoice = data['purchase_invoice']
             # check the total for invoice
-            if update_invoice_status(invoice=invoice, current=request.data['Amount'],
+            if update_invoice_status(invoice=invoice, current=data['Amount'],
                                      update=payment) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -207,8 +208,10 @@ class PaymentCreate(APIView):
         r.has_permission()
         serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
+            data = json.loads(request.data.dict())
+
             # check the total for invoice
-            if update_invoice_status(invoice=request.data['sales_invoice'], current=request.data['Amount']) == "error":
+            if update_invoice_status(invoice=data['sales_invoice'], current=data['Amount']) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
 
             serializer.save()
