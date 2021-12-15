@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import json
 from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
@@ -88,8 +89,8 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                   'Attachments', 'sold_by']
 
     def create(self, validated_data, user):
-        products = validated_data.pop('SaleInvoice_products')
-        attachment = validated_data.pop("Attachments")
+        products = json.loads(validated_data.pop('SaleInvoice_products'))
+        attachment = json.loads( validated_data.pop("Attachments"))
 
         # change product count
         for item in products:
@@ -109,7 +110,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
                                              total=validated_data.pop('total'),
                                              sold_by=user,
-                                             date =validated_data.pop("date")
+                                             date=validated_data.pop("date")
                                              )
         SaleInvoice_productsSerializer.create(SaleInvoice_productsSerializer(), validated_data=products,
                                               invoice=invoice, warehouse=invoice.warehouse)
