@@ -9,7 +9,7 @@ urlpatterns = [
     path('ProductDetails/product=<int:product>', ProductDetails.as_view(), name='ProductDetails'),
     path('ProductStore/product=<int:product>', csrf_exempt(get_product_store), name='store'),
     path('RecordHistory/product=<int:product>', csrf_exempt(get_product_recordhistory), name='record history'),
-    path('CreateProduct/', CreateProduct.as_view(), name='create'),
+    path('CreateProduct', CreateProduct.as_view(), name='create'),
     path('UpdateProduct/product=<int:product>', UpdateProduct.as_view(), name='update'),
     path('AllPermissions', AllPermissions.as_view(), name='all'),
     path('CreateOutPermission', CreateOutPermission.as_view(), name='create'),

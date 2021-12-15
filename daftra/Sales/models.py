@@ -4,7 +4,7 @@ from django.db import models
 from django.db import models
 
 discount_types = (
-    ('percentage(%)', "percentage"),
+    ('percentage', "percentage"),
     ('Amount', "Amount")
 
 )

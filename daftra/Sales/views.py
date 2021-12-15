@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .permissions import RolesPermissionsCheck, IsEmployee
 from .serializers import *
 from Users.models import RecordHistory
@@ -104,8 +104,7 @@ def get_all_invoice(request):
 # todo  check from front upload photo is working
 class createSaleInvoice(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
-
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
         invoices = SaleInvoice.objects.all()
@@ -127,7 +126,6 @@ class updateSaleInvoice(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
-
     def get(self, request, id):
         invoice = SaleInvoice.objects.get(pk=id)
         serializer = SaleInvoiceSerializer(invoice)
@@ -147,8 +145,8 @@ class updateSaleInvoice(APIView):
 
 class ShowPayments(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    def get(self, request, invoice):
 
+    def get(self, request, invoice):
         payments = SaleInvoice.objects.get(pk=invoice)
         serializer = paymentsInvoiceSerializer(payments)
         return Response(serializer.data, status=status.HTTP_200_OK)
