@@ -1,6 +1,8 @@
+import json
+
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.serializers import json
+
 from django.db.models import fields
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
