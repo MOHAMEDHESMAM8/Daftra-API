@@ -32,7 +32,6 @@ def product_count(operation, product, quantity, warehouse):
     if operation == "+":
         product_obj.count += quantity
         product_obj.save()
-
     elif operation == "-":
         product_obj.count -= quantity
         product_obj.save()
@@ -85,7 +84,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleInvoice
         fields = ['customer', 'warehouse', 'discount', 'discount_type', 'paid', 'shipping_fees', 'shipping_details',
-                  'notes', 'payment_terms', 'payment_method', 'payment_no', 'total', 'date', 'SaleInvoice_products',
+                  'notes', 'payment_terms', 'total', 'date', 'SaleInvoice_products',
                   'Attachments', 'sold_by']
 
     def create(self, validated_data, user):
@@ -107,8 +106,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              shipping_details=validated_data.pop('shipping_details'),
                                              notes=validated_data.pop('notes'),
                                              payment_terms=validated_data.pop('payment_terms'),
-                                             payment_method=validated_data.pop('payment_method'),
-                                             payment_no=validated_data.pop('payment_no'),
+
                                              total=validated_data.pop('total'),
                                              sold_by=user,
                                              date =validated_data.pop("date")
@@ -129,8 +127,6 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         # update Invoice instance
         instance.customer_id = validated_data.get('customer', instance.customer_id)
         instance.payment_terms = validated_data.get('payment_terms', instance.payment_terms)
-        instance.payment_method = validated_data.get('payment_method', instance.payment_method)
-        instance.payment_no = validated_data.get('payment_no', instance.payment_no)
         instance.total = validated_data.get('total', instance.total)
         instance.warehouse_id = validated_data.get('warehouse', instance.warehouse_id)
         instance.discount = validated_data.get('discount', instance.discount)

@@ -56,7 +56,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseInvoice
         fields = ['supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'paid', 'Received', 'shipping_fees',
-                  'notes', 'payment_terms', 'payment_method', 'payment_no', 'total', 'date',
+                  'notes', 'payment_terms',  'total', 'date',
                   'PurchaseInvoice_products', 'Attachments']
 
     def create(self, validated_data, user):
@@ -72,8 +72,6 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                  shipping_fees=validated_data.pop('shipping_fees'),
                                                  notes=validated_data.pop('notes'),
                                                  payment_terms=validated_data.pop('payment_terms'),
-                                                 payment_method=validated_data.pop('payment_method'),
-                                                 payment_no=validated_data.pop('payment_no'),
                                                  total=validated_data.pop('total'),
                                                  add_by=user,
                                                  date=validated_data.pop("date")
@@ -95,8 +93,6 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
         # update Invoice instance
         instance.supplier_id = validated_data.get('supplier', instance.supplier_id)
         instance.payment_terms = validated_data.get('payment_terms', instance.payment_terms)
-        instance.payment_method = validated_data.get('payment_method', instance.payment_method)
-        instance.payment_no = validated_data.get('payment_no', instance.payment_no)
         instance.total = validated_data.get('total', instance.total)
         instance.warehouse_id = validated_data.get('warehouse', instance.warehouse_id)
         instance.discount = validated_data.get('discount', instance.discount)
