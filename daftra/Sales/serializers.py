@@ -92,7 +92,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data, user):
         products = json.loads(validated_data.pop('SaleInvoice_products'))
-        attachment = json.loads( validated_data.pop("Attachments"))
+        attachment =  validated_data.pop("Attachments")
 
         # change product count
         for item in products:
@@ -109,7 +109,6 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              shipping_details=validated_data.pop('shipping_details'),
                                              notes=validated_data.pop('notes'),
                                              payment_terms=validated_data.pop('payment_terms'),
-
                                              total=validated_data.pop('total'),
                                              sold_by=user,
                                              date=validated_data.pop("date")
