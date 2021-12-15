@@ -44,8 +44,6 @@ class SaleInvoice(models.Model):
     shipping_details = models.CharField(max_length=20, choices=Shipping_details)
     notes = models.TextField(null=True, blank=True)
     payment_terms = models.SmallIntegerField(null=True, blank=True)
-    payment_method = models.CharField(choices=payment_methods, default='cash', max_length=20)
-    payment_no = models.IntegerField(null=True, blank=True)
     total = models.FloatField()
     date = models.DateField(null=True, blank=True)
 

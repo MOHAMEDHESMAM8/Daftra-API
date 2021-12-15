@@ -35,8 +35,6 @@ class PurchaseInvoice(models.Model):
     paid = models.BooleanField(default=False)
     shipping_fees = models.SmallIntegerField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
-    payment_method = models.CharField(choices=payment_methods, default='cash', max_length=20)
-    payment_no = models.IntegerField(null=True, blank=True)
     Received = models.BooleanField(default=False)
     total = models.FloatField()
     date = models.DateField(null=True, blank=True)

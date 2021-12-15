@@ -104,7 +104,7 @@ def get_all_invoice(request):
 # todo  check from front upload photo is working
 class createSaleInvoice(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         invoices = SaleInvoice.objects.all()
