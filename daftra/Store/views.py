@@ -372,6 +372,7 @@ class UpdateProduct(APIView):
     def get(self, request, product):
         product = Products.objects.get(id=product)
         serializer = ProductSerializer(product)
+        serializer.data["customer_name"]=product.customer.
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, product):
@@ -387,7 +388,7 @@ class UpdateProduct(APIView):
     def delete(self, request, product):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         r.has_permission()
-        product = Products.objects
+        product = Products.objects.get(id =product)
         if product.SaleInvoice.all().exists():
             return Response("product can't be deleted", status=status.HTTP_400_BAD_REQUEST)
         else:
