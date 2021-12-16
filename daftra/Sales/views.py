@@ -130,7 +130,29 @@ class updateSaleInvoice(APIView):
     def get(self, request, id):
         invoice = SaleInvoice.objects.get(pk=id)
         serializer = SaleInvoiceSerializer(invoice)
-        return Response(serializer.data)
+        obj = serializer.data
+        obj["customer_name"] = invoice.customer.user.first_name + " " + invoice.customer.user.last_name
+        obj["address"] = invoice.customer.user.address
+        obj["city"] = invoice.customer.user.city
+        obj["country"] = invoice.customer.user.country
+        obj["phone"] = invoice.customer.user.phone
+        obj["warehouse_name"] = invoice.warehouse.name
+        for item in obj.get("SaleInvoice_products"):
+            print(item)
+            product = Products.objects.get(id=item.get("product"))
+            item['product_name'] = product.name
+            try:
+                tax1 = Tax.objects.get(id=item.get("tax1"))
+                item['tax1_name'] = tax1.tax_name
+            except ObjectDoesNotExist:
+                pass
+            try:
+                tax2 = Tax.objects.get(id=item.get("tax2"))
+                item['tax2_name'] = tax2.tax_name
+            except ObjectDoesNotExist:
+                pass
+
+        return Response(obj)
 
     def put(self, request, id, format=None):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
@@ -336,7 +358,7 @@ def get_all_customer(request):
     data = []
     for item in customers:
         obj = {
-            "name": item.user.first_name,
+            "name": item.user.first_name + " " + item.user.last_name,
             "id": item.id
         }
         data.append(obj)
@@ -374,4 +396,3 @@ def get_all_warehouse(request):
         data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
-

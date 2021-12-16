@@ -51,7 +51,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Products
         fields = ["id", "name", "description", "supplier", "selling_price", "purchasing_price", "mini_selling_price",
-                  "mini_count", "notes", "brand", "deactivate", "Product_count", "Category"]
+                  "mini_count", "notes", "brand", "barcode", "deactivate", "Product_count", "Category"]
 
     def create(self, validated_data):
         product = Products.objects.create(supplier_id=validated_data.pop("supplier"),
@@ -63,6 +63,7 @@ class ProductSerializer(serializers.ModelSerializer):
                                           mini_selling_price=validated_data.pop("mini_selling_price"),
                                           mini_count=validated_data.pop("mini_count"),
                                           notes=validated_data.pop("notes"),
+                                          barcode=validated_data.pop("barcode"),
                                           deactivate=validated_data.pop("deactivate"),
                                           )
         category = validated_data.get("Category")
@@ -84,6 +85,7 @@ class ProductSerializer(serializers.ModelSerializer):
         instance.mini_count = validated_data.pop("mini_count")
         instance.notes = validated_data.pop("notes")
         instance.brand_id = validated_data.pop("brand")
+        instance.barcode = validated_data.pop("barcode")
         instance.deactivate = validated_data.pop("deactivate")
         instance.save()
 

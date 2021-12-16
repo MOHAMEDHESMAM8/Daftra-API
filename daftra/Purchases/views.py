@@ -125,7 +125,26 @@ class updatePurchaseInvoice(APIView):
     def get(self, request, invoice):
         invoice = PurchaseInvoice.objects.get(pk=invoice)
         serializer = PurchaseInvoiceSerializer(invoice)
-        return Response(serializer.data)
+        obj = serializer.data
+        obj["customer_name"] = invoice.supplier.user.first_name + " " + invoice.supplier.user.last_name
+        obj["phone"] = invoice.supplier.user.phone
+        obj["warehouse_name"] = invoice.warehouse.name
+        for item in obj.get("PurchaseInvoice_products"):
+            print(item)
+            product = Products.objects.get(id=item.get("product"))
+            item['product_name'] = product.name
+            try:
+                tax1 = Tax.objects.get(id=item.get("tax1"))
+                item['tax1_name'] = tax1.tax_name
+            except ObjectDoesNotExist:
+                pass
+            try:
+                tax2 = Tax.objects.get(id=item.get("tax2"))
+                item['tax2_name'] = tax2.tax_name
+            except ObjectDoesNotExist:
+                pass
+
+        return Response(obj)
 
     def put(self, request, invoice, format=None):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
@@ -332,7 +351,7 @@ def get_all_supplier(request):
     data = []
     for item in customers:
         obj = {
-            "name": item.user.first_name,
+            "name": item.user.first_name+" "+item.user.last_name,
             "id": item.id
         }
         data.append(obj)

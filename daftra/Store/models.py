@@ -21,7 +21,7 @@ class Products(models.Model):
     description = models.TextField(null=True, blank=True)
     supplier = models.ForeignKey("Users.Suppliers", db_column='supplier', related_name='supplier',
                                  on_delete=models.CASCADE)
-    # TODO barcode
+    barcode = models.CharField(max_length=7 ,null=True, blank=True)
     selling_price = models.SmallIntegerField(null=True, blank=True)
     purchasing_price = models.SmallIntegerField(null=True, blank=True)
     mini_selling_price = models.SmallIntegerField(null=True, blank=True)

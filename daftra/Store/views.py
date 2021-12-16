@@ -18,7 +18,7 @@ from .permissions import IsEmployee, RolesPermissionsCheck
 
 
 @api_view(['GET'])
-@permission_classes([IsEmployee, IsAuthenticated])
+@permission_classes([IsAuthenticated, IsEmployee])
 def get_product_store(request, product):
     r = RolesPermissionsCheck(request, "can_show_products")
     r.has_permission()
@@ -295,13 +295,13 @@ def get_last_7_days(product):
 
 
 class GetProducts(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = Products.objects.all()
         data = []
         for item in products:
             obj = {
-                # TODO add barcode
                 "name": item.name,
                 "id": item.id,
                 'status': item.product_count_status(product=item.id),
@@ -309,6 +309,8 @@ class GetProducts(APIView):
                 "purchasing_price": item.purchasing_price,
                 "selling_price": item.selling_price,
                 "deactivate": item.deactivate,
+                "barcode": item.barcode,
+                "brand": item.brand.name,
             }
             data.append(obj)
         json_format = json.dumps(data)
@@ -317,6 +319,7 @@ class GetProducts(APIView):
 
 # TODO change average to buy not sale
 class ProductDetails(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, product):
         data = {}
@@ -326,9 +329,9 @@ class ProductDetails(APIView):
         objs = []
         for item in products:
             obj = {
-                # TODO add barcode
                 "warehouse_name": item.warehouse.name,
                 "count": item.count,
+                "barcode": item.barcode,
             }
             objs.append(obj)
         data["Stock Quantity"] = objs
@@ -372,8 +375,10 @@ class UpdateProduct(APIView):
     def get(self, request, product):
         product = Products.objects.get(id=product)
         serializer = ProductSerializer(product)
-        serializer.data["customer_name"]=product.customer.
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        obj = serializer.data
+        obj["supplier_name"] = product.supplier.user.first_name + " " + product.supplier.user.last_name
+
+        return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, product):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
@@ -385,10 +390,11 @@ class UpdateProduct(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # TODO refactor
     def delete(self, request, product):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         r.has_permission()
-        product = Products.objects.get(id =product)
+        product = Products.objects.get(id=product)
         if product.SaleInvoice.all().exists():
             return Response("product can't be deleted", status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -479,7 +485,7 @@ class UpdateOutPermission(APIView):
         product = OutPermissions.objects.get(id=permission)
         serializer = OutPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
-            serializer.update(instance=product, validated_data=request.data,user=request.user.employee)
+            serializer.update(instance=product, validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -523,7 +529,7 @@ class UpdateAddPermission(APIView):
         product = AddPermissions.objects.get(id=permission)
         serializer = AddPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
-            serializer.update(instance=product, validated_data=request.data,user=request.user.employee)
+            serializer.update(instance=product, validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
