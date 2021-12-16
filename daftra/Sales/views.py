@@ -209,12 +209,17 @@ class PaymentCreate(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
+    def get(self, request):
+        payments = SalePayments.objects.all()
+        serializer = paymentsSerializer(payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request, format=None):
         r = RolesPermissionsCheck(request, "can_add_paymentForBills")
         r.has_permission()
         serializer = CreateUpdatePaymentSerializer(data=request.data.dict())
         if serializer.is_valid():
-            data=json.loads(request.data.dict())
+            data = json.loads(request.data.dict())
             # check the total for invoice
             if update_invoice_status(invoice=data['sales_invoice'], current=data['Amount']) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)
@@ -232,7 +237,7 @@ class PaymentCreate(APIView):
 
 
 class InvoiceStore(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
         products = SaleInvoice_products.objects.filter(sales_invoice=invoice)
@@ -370,18 +375,3 @@ def get_all_warehouse(request):
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
 
-# @api_view(['GET'])
-# # # @permission_classes(())
-# def get_invoice_store(request, invoice):
-#     products = SaleInvoice_products.objects.filter(sales_invoice_id=invoice)
-#     data = []
-#     for item in products:
-#         obj = {
-#             "product_name": item.product.name,
-#             "product_id": item.product.id,
-#             "quantity": item.quantity,
-#             "count_after": item.count_after,
-#         }
-#         data.append(obj)
-#     final=json.dumps(data)
-#     return HttpResponse(final, content_type='application/json; charset=utf-8')

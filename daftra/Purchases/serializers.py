@@ -201,19 +201,12 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
 
         return validated_data
 
-
-
-
-
-
-
-
 class paymentsSerializer(serializers.ModelSerializer):
     employee_name = serializers.SerializerMethodField()
 
     class Meta:
         model = PurchasePayments
-        fields = ["id", "method", "ref_no", "Date", "status", "employee_name", "manual", "Amount"]
+        fields = ["id", "method", "ref_no", "Date", "status", "employee_name", "Amount"]
 
     def get_employee_name(self, obj):
         user = obj.Collected_by.user

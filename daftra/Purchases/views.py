@@ -203,6 +203,11 @@ class PaymentCreate(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
+    def get(self, request):
+        payments = PurchasePayments.objects.all()
+        serializer = paymentsSerializer(payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request, format=None):
         r = RolesPermissionsCheck(request, "can_add_paymentForBills")
         r.has_permission()

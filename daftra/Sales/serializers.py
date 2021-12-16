@@ -245,7 +245,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
 class paymentsSerializer(serializers.ModelSerializer):
     employee_name = serializers.SerializerMethodField()
-
+    Date = serializers.DateTimeField(format="%Y-%m-%d")
     class Meta:
         model = SalePayments
         fields = ["id", "method", "ref_no", "Date", "status", "employee_name", "manual", "Amount"]
@@ -281,7 +281,6 @@ class paymentDetailsSerializer(serializers.ModelSerializer):
             "city": user.city,
             "address": user.address,
             "postal_code": user.postal_code,
-
         }
         return data
 
