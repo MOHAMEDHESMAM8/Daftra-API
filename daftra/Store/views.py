@@ -352,7 +352,7 @@ class ProductDetails(APIView):
 
 
 class CreateProduct(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = Products.objects.all()
@@ -390,16 +390,12 @@ class UpdateProduct(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # TODO refactor
     def delete(self, request, product):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         r.has_permission()
         product = Products.objects.get(id=product)
-        if product.SaleInvoice.all().exists():
-            return Response("product can't be deleted", status=status.HTTP_400_BAD_REQUEST)
-        else:
-            product.delete()
-            return Response("done", status=status.HTTP_204_NO_CONTENT)
+        product.delete()
+        return Response("done", status=status.HTTP_204_NO_CONTENT)
 
 
 class AllPermissions(APIView):

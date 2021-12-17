@@ -1,5 +1,7 @@
 from django.db import models
 
+from Users.models import get_deleted_employee
+
 
 class Warehouses(models.Model):
     id = models.AutoField(primary_key=True)
@@ -21,7 +23,7 @@ class Products(models.Model):
     description = models.TextField(null=True, blank=True)
     supplier = models.ForeignKey("Users.Suppliers", db_column='supplier', related_name='supplier',
                                  on_delete=models.CASCADE)
-    barcode = models.CharField(max_length=7 ,null=True, blank=True)
+    barcode = models.CharField(max_length=7, null=True, blank=True)
     selling_price = models.SmallIntegerField(null=True, blank=True)
     purchasing_price = models.SmallIntegerField(null=True, blank=True)
     mini_selling_price = models.SmallIntegerField(null=True, blank=True)
@@ -50,7 +52,6 @@ class Products(models.Model):
         return sum
 
 
-
 class Product_count(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE, related_name="Product_count")
@@ -65,23 +66,24 @@ class Categories(models.Model):
 
 class ProductsCategory(models.Model):
     id = models.AutoField(primary_key=True)
-    product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE, related_name="Category")
+    product = models.ForeignKey(Products, db_column='product', on_delete=models.PROTECT, related_name="Category")
     category = models.ForeignKey(Categories, db_column='category', on_delete=models.CASCADE, related_name="Category")
 
 
 class OutPermissions(models.Model):
     id = models.AutoField(primary_key=True)
     warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
-    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
+    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField()
 
 
 class OutPermissions_Products(models.Model):
-
-    product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE,related_name= "OutPermissions_Products")
-    out_permission = models.ForeignKey(OutPermissions, db_column='out_permission', on_delete=models.CASCADE,related_name="OutPermissions_Products")
+    product = models.ForeignKey(Products, db_column='product', on_delete=models.PROTECT,
+                                related_name="OutPermissions_Products")
+    out_permission = models.ForeignKey(OutPermissions, db_column='out_permission', on_delete=models.CASCADE,
+                                       related_name="OutPermissions_Products")
     quantity = models.SmallIntegerField()
     unit_price = models.SmallIntegerField()
     count_after = models.SmallIntegerField()
@@ -90,15 +92,17 @@ class OutPermissions_Products(models.Model):
 class AddPermissions(models.Model):
     id = models.AutoField(primary_key=True)
     warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
-    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.CASCADE)
+    add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField()
 
 
 class AddPermissions_Products(models.Model):
-    product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE,related_name="AddPermissions_Products")
-    add_permission = models.ForeignKey(AddPermissions, db_column='add_permission', on_delete=models.CASCADE ,related_name="AddPermissions_Products")
+    product = models.ForeignKey(Products, db_column='product', on_delete=models.PROTECT,
+                                related_name="AddPermissions_Products")
+    add_permission = models.ForeignKey(AddPermissions, db_column='add_permission', on_delete=models.CASCADE,
+                                       related_name="AddPermissions_Products")
     quantity = models.SmallIntegerField()
     unit_price = models.SmallIntegerField()
     count_after = models.SmallIntegerField()

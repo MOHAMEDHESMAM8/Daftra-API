@@ -1,3 +1,5 @@
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
@@ -81,6 +83,7 @@ RecordHistory_types = (
     ('create_appointment', "create_appointment"),
     ('update_appointment', "update_appointment"),
     ('delete_appointment', "delete_appointment"),
+    ('show_appointment', "show_appointment"),
     ('move_product', "move_product"),
     ('update_product_invoice', "update_product_invoice"),
     ('delete_product_invoice', "delete_product_invoice"),
@@ -162,6 +165,16 @@ class RolePermissions(models.Model):
     can_management_roles = models.BooleanField(default=False)
 
 
+def get_deleted_employee():
+    try:
+        user = User.objects.filter(email="deleted@gmail.com")
+        return user.employee
+    except ObjectDoesNotExist:
+        new_user = User.objects.create(email="deleted@gmail.com", first_name="deletedEmployee", is_active=False)
+        new_deleted = Employees.objects.create(user=new_user, role_id=1)
+        return new_deleted
+
+
 class Employees(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', related_name='employee')
@@ -198,16 +211,18 @@ class emails(models.Model):
 class RecordHistory(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=40, choices=RecordHistory_types)
-    product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.CASCADE, null=True,
+    product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.PROTECT, null=True,
                                 blank=True)
-    outPermissions = models.ForeignKey("Store.OutPermissions", db_column='outPermissions', on_delete=models.CASCADE, null=True,
+    outPermissions = models.ForeignKey("Store.OutPermissions", db_column='outPermissions', on_delete=models.CASCADE,
+                                       null=True,
                                        blank=True)
-    addPermissions = models.ForeignKey("Store.AddPermissions", db_column='addPermissions', on_delete=models.CASCADE, null=True,
+    addPermissions = models.ForeignKey("Store.AddPermissions", db_column='addPermissions', on_delete=models.CASCADE,
+                                       null=True,
                                        blank=True)
     customer = models.ForeignKey(Customers, db_column='customer',
                                  on_delete=models.CASCADE, null=True, blank=True)
-    employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.CASCADE, null=True, blank=True,
-                                 related_name="employee")
+    employee = models.ForeignKey(Employees, db_column='employee',on_delete=models.SET(get_deleted_employee), null=True,
+                                 blank=True, related_name="employee")
     activity_id = models.PositiveSmallIntegerField()
     purchase = models.ForeignKey("Purchases.PurchaseInvoice", db_column='purchase', on_delete=models.CASCADE,
                                  null=True,
@@ -238,9 +253,7 @@ class Notes(models.Model):
     # Todo حدث الحالة الى CRUD
 
 
-
 class NotesAttachment(models.Model):
     id = models.AutoField(primary_key=True)
     attachment = models.FileField(upload_to='Notes/%y/%m')
     note = models.ForeignKey(Notes, db_column='note', on_delete=models.CASCADE)
-
