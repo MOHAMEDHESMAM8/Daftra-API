@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import *
 from Purchases.models import PurchaseInvoice
+import random
+import string
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -11,6 +13,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['first_name'] = user.first_name
         token['role'] = user.employee.role.role
         return token
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["country", "city", "first_name", "last_name", "phone", "phone", "telephone", "middle_name", "address",
+                  "notes", "email", "postal_code"]
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -28,6 +36,7 @@ class SuppliersSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.get("user")
+        random_num = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         user = User.objects.create(
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
@@ -41,7 +50,7 @@ class SuppliersSerializer(serializers.ModelSerializer):
             notes=user_data['notes'],
             email=user_data['email'],
             postal_code=user_data['postal_code'],
-            password=user_data['password'],
+            password=random_num,
         )
         user.set_password(user_data['password'])
         user.save()
@@ -49,7 +58,6 @@ class SuppliersSerializer(serializers.ModelSerializer):
                                             business_name=validated_data.get("business_name"),
                                             Tax_id=validated_data.get("Tax_id"),
                                             commercial_record=validated_data.get("commercial_record"),
-
                                             )
         return supplier
 
@@ -74,6 +82,19 @@ class SuppliersSerializer(serializers.ModelSerializer):
         return instance
 
 
+# printing lowercase
+
+
+
+
+class getSupplierSerializer(serializers.ModelSerializer):
+    user = CreateUserSerializer(read_only=True)
+
+    class Meta:
+        model = Suppliers
+        fields = ["id", "business_name", "Tax_id", "commercial_record", "user"]
+
+
 class SupplierPurchasesSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format="%d/%m/%Y")
 
@@ -81,12 +102,6 @@ class SupplierPurchasesSerializer(serializers.ModelSerializer):
         model = PurchaseInvoice
         fields = ["Received", "created_at", "id", "total"]
 
-
-class CreateUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["country", "city", "first_name", "last_name", "phone", "phone", "telephone", "middle_name", "address",
-                  "notes", "email", "postal_code"]
 
 
 class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
@@ -102,10 +117,28 @@ class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
         customer = Customers.objects.create(user=user, currency=validated_data.pop("currency"))
         return customer
 
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user")
+        user = User.objects.get(id=instance.user.id)
+        user.first_name = user_data['first_name']
+        user.last_name = user_data["last_name"]
+        user.phone = user_data['phone']
+        user.telephone = user_data['telephone']
+        user.middle_name = user_data['middle_name']
+        user.address = user_data['address']
+        user.city = user_data['city']
+        user.country = user_data['country']
+        user.notes = user_data['notes']
+        user.postal_code = user_data['postal_code']
+        instance.currency = validated_data.get("currency")
+        user.save()
+        instance.save()
+        return instance
+
+
 
 class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
     user = CreateUserSerializer()
-
     class Meta:
         model = Employees
         fields = ['role', 'photo', 'user']

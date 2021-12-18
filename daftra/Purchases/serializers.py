@@ -1,3 +1,5 @@
+import json
+
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import fields
@@ -37,32 +39,18 @@ class PurchaseInvoice_productsSerializer(serializers.ModelSerializer):
         return invoice
 
 
-class PurchaseAttachmentsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attachments
-        fields = ['id', 'attachment']
-
-    def create(self, validated_data, invoice):
-        for item in validated_data:
-            Attachments.objects.create(purchase_invoice=invoice,
-                                       attachment=item.pop('attachment'),
-                                       )
-
 
 class PurchaseInvoiceSerializer(serializers.ModelSerializer):
     PurchaseInvoice_products = PurchaseInvoice_productsSerializer(many=True, read_only=True)
-    Attachments = PurchaseAttachmentsSerializer(many=True, read_only=True)
 
     class Meta:
         model = PurchaseInvoice
         fields = ['supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'paid', 'Received', 'shipping_fees',
-                  'notes', 'payment_terms',  'total', 'date',
-                  'PurchaseInvoice_products', 'Attachments']
+                  'notes', 'payment_terms', 'total', 'date', 'attachment'
+                  'PurchaseInvoice_products']
 
     def create(self, validated_data, user):
-        products = validated_data.pop('PurchaseInvoice_products')
-        attachment = validated_data.pop("Attachments")
-
+        products = json.loads(validated_data.pop('PurchaseInvoice_products'))
         invoice = PurchaseInvoice.objects.create(supplier_id=validated_data.pop('supplier'),
                                                  warehouse_id=validated_data.pop('warehouse'),
                                                  discount=validated_data.pop('discount'),
@@ -71,6 +59,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                  Received=validated_data.pop('Received'),
                                                  shipping_fees=validated_data.pop('shipping_fees'),
                                                  notes=validated_data.pop('notes'),
+                                                 attachment=validated_data.pop('attachment'),
                                                  payment_terms=validated_data.pop('payment_terms'),
                                                  total=validated_data.pop('total'),
                                                  add_by=user,
@@ -78,9 +67,13 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                  )
         PurchaseInvoice_productsSerializer.create(PurchaseInvoice_productsSerializer(), validated_data=products,
                                                   invoice=invoice, warehouse=invoice.warehouse)
-        PurchaseAttachmentsSerializer.create(PurchaseAttachmentsSerializer(), validated_data=attachment,
-                                             invoice=invoice)
-
+        if invoice.paid:
+            PurchasePayments.objects.create(Collected_by=invoice.sold_by,
+                                            method=validated_data.get('payment_method'),
+                                            ref_no=validated_data.get('payment_no'),
+                                            Amount=invoice.total,
+                                            purchase_invoice=invoice,
+                                            )
         # create history record
         add_record_history(activity_type="create_purchase",
                            purchase=invoice,
@@ -97,8 +90,8 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
         instance.warehouse_id = validated_data.get('warehouse', instance.warehouse_id)
         instance.discount = validated_data.get('discount', instance.discount)
         instance.notes = validated_data.get('notes', instance.notes)
+        instance.attachment = validated_data.get('attachment', instance.attachment)
         instance.discount_type = validated_data.get('discount_type', instance.discount_type)
-        instance.paid = validated_data.get('paid', instance.paid)
         instance.date = validated_data.get('date', instance.date)
         instance.Received = validated_data.get('Received', instance.Received)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
@@ -106,11 +99,12 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
 
         # FOR CHECK IF USER DELETE ANY ITEM
         products = validated_data.get('PurchaseInvoice_products')
-        product_ids = [item['id'] for item in products]
+        product_ids = [item['product'] for item in products]
         for product in instance.PurchaseInvoice_products.all():
-            if product.id not in product_ids:
+            if product.product.id not in product_ids:
                 # check if there is enough products to Restore
-                product_count(operation=">", product=product.product, quantity=product.quantity, warehouse=instance.warehouse)
+                product_count(operation=">", product=product.product, quantity=product.quantity,
+                              warehouse=instance.warehouse)
 
                 deleted_product = deletedActivities.objects.create(item_count=product.quantity,
                                                                    store_count=product.count_after - product.quantity,
@@ -128,12 +122,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                               warehouse=instance.warehouse)
                 product.delete()
 
-        # FOR CHECK IF USER DELETE ANY ATTACHMENT
-        attachments = validated_data.get('Attachments')
-        attachment_ids = [item['id'] for item in attachments]
-        for Attachment in instance.Attachments.all():
-            if Attachment.id not in attachment_ids:
-                Attachment.delete()
+
 
         # update and create  products
         for item in products:
@@ -142,19 +131,24 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                                    purchase_invoice=instance)
                 # change product count
                 quantity = item.get('quantity')
+                count_after = 0
+
                 # check id quantity is enough
                 if quantity < product_obj.quantity:
-                    sub = quantity - product_obj.quantity
+                    sub = product_obj.quantity - quantity
                     product_count(operation=">", product=product_obj.product, quantity=sub,
                                   warehouse=instance.warehouse)
                     product_count(operation="-", product=product_obj.product, quantity=sub,
                                   warehouse=instance.warehouse)
+                    count_after = product_obj.count_after - sub
                 else:
-                    sub = product_obj.quantity - quantity
+                    sub = quantity - product_obj.quantity
                     product_count(operation="+", product=product_obj.product, quantity=sub,
                                   warehouse=instance.warehouse)
+                    count_after = product_obj.count_after + sub
+
                 product_obj.quantity = item.get('quantity')
-                product_obj.count_after = item.pop('count_after')
+                product_obj.count_after = count_after
                 product_obj.unit_price = item.pop('unit_price')
                 product_obj.product_id = item.pop('product')
                 product_obj.tax1_id = item.pop('tax1')
@@ -169,10 +163,11 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                    product=product.product
                                    )
             except ObjectDoesNotExist:
+                product = Product_count.objects.get(warehouse=instance.warehouse, product_id=item.pop('product'))
                 product = PurchaseInvoice_products.objects.create(purchase_invoice=instance,
                                                                   quantity=item.pop('quantity'),
                                                                   unit_price=item.pop('unit_price'),
-                                                                  count_after=item.pop('count_after'),
+                                                                  count_after=product.count + item.pop('quantity'),
                                                                   product_id=item.pop('product'),
                                                                   tax1_id=item.pop('tax1'), tax2_id=item.pop('tax2'),
                                                                   )
@@ -183,14 +178,6 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                 # create history record
                 add_record_history(activity_type="receive_product", purchase=instance, add_by=instance.add_by,
                                    activity_id=product.id, product=product.product)
-        # update and create  attachments
-        for item in attachments:
-            try:
-                attachment_obj = Attachments.objects.get(pk=item.pop('id'))
-                attachment_obj.attachment = item.pop('attachment')
-                attachment_obj.save()
-            except ObjectDoesNotExist:
-                Attachments.objects.create(purchase_invoice=instance, attachment=item.pop('attachment'))
 
         # create history record
         add_record_history(activity_type="update_invoice",
@@ -200,6 +187,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                            )
 
         return validated_data
+
 
 class paymentsSerializer(serializers.ModelSerializer):
     employee_name = serializers.SerializerMethodField()

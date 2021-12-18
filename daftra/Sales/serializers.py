@@ -68,32 +68,19 @@ class SaleInvoice_productsSerializer(serializers.ModelSerializer):
                                )
 
 
-class SaleAttachmentsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attachments
-        fields = ['id', 'attachment']
-
-    def create(self, validated_data, invoice):
-        for item in validated_data:
-            Attachments.objects.create(sale_invoice=invoice,
-                                       attachment=item.pop('attachment'),
-                                       )
 
 
 class SaleInvoiceSerializer(serializers.ModelSerializer):
     SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
-    Attachments = SaleAttachmentsSerializer(many=True, read_only=True)
 
     class Meta:
         model = SaleInvoice
         fields = ['customer', 'warehouse', 'discount', 'discount_type', 'paid', 'shipping_fees', 'shipping_details',
-                  'notes', 'payment_terms', 'total', 'date', 'SaleInvoice_products',
-                  'Attachments', 'sold_by']
+                  'notes', 'payment_terms', 'total', 'date', 'attachment',
+                  'sales_officer', 'SaleInvoice_products']
 
     def create(self, validated_data, user):
         products = json.loads(validated_data.pop('SaleInvoice_products'))
-        attachment =  validated_data.pop("Attachments")
-
         # change product count
         for item in products:
             product = Products.objects.get(pk=item["product"])
@@ -108,15 +95,23 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              shipping_fees=validated_data.pop('shipping_fees'),
                                              shipping_details=validated_data.pop('shipping_details'),
                                              notes=validated_data.pop('notes'),
+                                             attachment=validated_data.pop('attachment'),
                                              payment_terms=validated_data.pop('payment_terms'),
                                              total=validated_data.pop('total'),
                                              sold_by=user,
+                                             sales_officer_id=validated_data.pop('sales_officer'),
                                              date=validated_data.pop("date")
                                              )
+
         SaleInvoice_productsSerializer.create(SaleInvoice_productsSerializer(), validated_data=products,
                                               invoice=invoice, warehouse=invoice.warehouse)
-        SaleAttachmentsSerializer.create(SaleAttachmentsSerializer(), validated_data=attachment, invoice=invoice)
-
+        if invoice.paid:
+            SalePayments.objects.create(Collected_by=invoice.sold_by,
+                                        method=validated_data.get('payment_method'),
+                                        ref_no=validated_data.get('payment_no'),
+                                        Amount=invoice.total,
+                                        sales_invoice=invoice,
+                                        )
         # create history record
         add_record_history(activity_type="create_sale",
                            sale=invoice,
@@ -134,9 +129,10 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         instance.discount = validated_data.get('discount', instance.discount)
         instance.notes = validated_data.get('notes', instance.notes)
         instance.discount_type = validated_data.get('discount_type', instance.discount_type)
-        instance.paid = validated_data.get('paid', instance.paid)
+        instance.attachment = validated_data.get('attachment', instance.attachment)
         instance.date = validated_data.get('date', instance.date)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
+        instance.sales_officer_id = validated_data.pop('sales_officer', instance.sales_officer),
         instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
         instance.save()
 
@@ -144,7 +140,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         products = validated_data.get('SaleInvoice_products')
         product_ids = [item['product'] for item in products]
         for product in instance.SaleInvoice_products.all():
-            if product.id not in product_ids:
+            if product.product.id not in product_ids:
                 deleted_product = deletedActivities.objects.create(
                     item_count=product.quantity,
                     store_count=product.quantity + product.count_after,
@@ -162,19 +158,13 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                               warehouse=instance.warehouse)
                 product.delete()
 
-        # FOR CHECK IF USER DELETE ANY ATTACHMENT
-        attachments = validated_data.get('Attachments')
-        attachment_ids = [item['id'] for item in attachments]
-        for Attachment in instance.Attachments.all():
-            if Attachment.id not in attachment_ids:
-                Attachment.delete()
-
         # update and create  products
         for item in products:
             try:
                 product_obj = SaleInvoice_products.objects.get(product_id=item["product"], sales_invoice=instance)
                 # change product count
                 quantity = item.get('quantity')
+                count_after = 0
                 # check id quantity is enough
                 if quantity > product_obj.quantity:
                     sub = quantity - product_obj.quantity
@@ -182,12 +172,14 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                   warehouse=instance.warehouse)
                     product_count(operation="-", product=product_obj.product, quantity=sub,
                                   warehouse=instance.warehouse)
+                    count_after = product_obj.count_after - sub
                 else:
                     sub = product_obj.quantity - quantity
                     product_count(operation="+", product=product_obj.product, quantity=sub,
                                   warehouse=instance.warehouse)
+                    count_after = product_obj.count_after + sub
                 product_obj.quantity = item.get('quantity')
-                product_obj.count_after = item.pop('count_after')
+                product_obj.count_after = count_after
                 product_obj.unit_price = item.pop('unit_price')
                 product_obj.product_id = item.pop('product')
                 product_obj.tax1_id = item.pop('tax1')
@@ -200,22 +192,21 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                    product=product_obj.product
                                    )
             except ObjectDoesNotExist:
-                # TODO put change product before add
-                product = SaleInvoice_products.objects.create(sales_invoice=instance,
-                                                              quantity=item.pop('quantity'),
-                                                              unit_price=item.pop('unit_price'),
-                                                              count_after=item.pop('count_after'),
-                                                              product_id=item.pop('product'),
-                                                              tax1_id=item.pop('tax1'),
-                                                              tax2_id=item.pop('tax2'),
-                                                              )
                 # change product count
-
                 product_count(operation=">", product=product.product, quantity=product.quantity,
                               warehouse=instance.warehouse)
                 product_count(operation="-", product=product.product, quantity=product.quantity,
                               warehouse=instance.warehouse)
 
+                product = Product_count.objects.get(warehouse=instance.warehouse, product_id=item.pop('product'))
+                product = SaleInvoice_products.objects.create(sales_invoice=instance,
+                                                              quantity=item.pop('quantity'),
+                                                              unit_price=item.pop('unit_price'),
+                                                              count_after=product.count - item.pop('quantity'),
+                                                              product_id=item.pop('product'),
+                                                              tax1_id=item.pop('tax1'),
+                                                              tax2_id=item.pop('tax2'),
+                                                              )
                 # create history record
                 add_record_history(activity_type="sold_product",
                                    sale=instance,
@@ -223,29 +214,19 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                    activity_id=product.id,
                                    product=product.product
                                    )
-        # update and create  attachments
-        for item in attachments:
-            try:
-                attachment_obj = Attachments.objects.get(pk=item.pop('id'))
-                attachment_obj.attachment = item.pop('attachment')
-                attachment_obj.save()
-            except ObjectDoesNotExist:
-                Attachments.objects.create(sales_invoice=instance, attachment=item.pop('attachment')
-                                           )
-
         # create history record
         add_record_history(activity_type="update_invoice",
                            sale=instance,
                            add_by=instance.sold_by,
                            activity_id=instance.id,
                            )
-
         return validated_data
 
 
 class paymentsSerializer(serializers.ModelSerializer):
     employee_name = serializers.SerializerMethodField()
     Date = serializers.DateTimeField(format="%Y-%m-%d")
+
     class Meta:
         model = SalePayments
         fields = ["id", "method", "ref_no", "Date", "status", "employee_name", "manual", "Amount"]

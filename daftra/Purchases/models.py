@@ -19,7 +19,6 @@ payment_status = (
     ('complete', "complete"),
     ('pending', "pending"),
     ('failed', "failed"),
-
 )
 
 
@@ -40,13 +39,8 @@ class PurchaseInvoice(models.Model):
     Received = models.BooleanField(default=False)
     total = models.FloatField()
     date = models.DateField(null=True, blank=True)
+    attachment = models.FileField(upload_to='Purchases/%y/%m',null=True, blank=True)
 
-
-class Attachments(models.Model):
-    id = models.AutoField(primary_key=True)
-    purchase_invoice = models.ForeignKey(PurchaseInvoice, db_column='purchase_invoice', on_delete=models.CASCADE,
-                                         related_name="Attachments")
-    attachment = models.FileField(upload_to='Purchases/%y/%m')
 
 
 # TODO unique product and invoice (double key) (in sales also)
@@ -63,12 +57,13 @@ class PurchaseInvoice_products(models.Model):
     tax2 = models.ForeignKey("Users.Tax", null=True, blank=True, db_column='tax2', on_delete=models.PROTECT)
 
 
+
 class PurchasePayments(models.Model):
     id = models.AutoField(primary_key=True)
     Collected_by = models.ForeignKey("Users.Employees", db_column='Collected_by',
                                      on_delete=models.SET(get_deleted_employee))
     method = models.CharField(choices=payment_methods, max_length=20)
-    ref_no = models.SmallIntegerField()
+    ref_no = models.CharField(max_length=25, null=True, blank=True)
     Date = models.DateTimeField(auto_now_add=True)
     payment_details = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)

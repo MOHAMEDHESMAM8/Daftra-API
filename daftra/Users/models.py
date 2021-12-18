@@ -249,11 +249,7 @@ class Notes(models.Model):
     notes = models.TextField()
     type = models.CharField(max_length=20, choices=notes_types)
     person_id = models.IntegerField()
+    attachment = models.FileField(upload_to='Notes/%y/%m',null=True, blank=True, )
+
     # Todo اجراء تنفيذ CRUD
     # Todo حدث الحالة الى CRUD
-
-
-class NotesAttachment(models.Model):
-    id = models.AutoField(primary_key=True)
-    attachment = models.FileField(upload_to='Notes/%y/%m')
-    note = models.ForeignKey(Notes, db_column='note', on_delete=models.CASCADE)

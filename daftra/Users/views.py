@@ -57,11 +57,16 @@ class GetUpdateDeleteSupplier(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, supplier):
-        r = RolesPermissionsCheck(request, "can_show_suppliers")
-        r.has_permission()
         suppliers = Suppliers.objects.get(id=supplier)
-        serializer = SuppliersSerializer(suppliers)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = getSupplierSerializer(suppliers)
+        obj = serializer.data
+        all_invoices = PurchaseInvoice.objects.filter(supplier=supplier)
+        invoice_due = PurchaseInvoice.objects.filter(supplier=supplier, paid=False)
+        last_invoice = all_invoices.latest("id")
+        obj["invoiceDue"] = invoice_due.count()
+        obj["allInvoices"] = all_invoices.count()
+        obj["lastInvoice"] = last_invoice.id
+        return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, supplier):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
@@ -72,6 +77,13 @@ class GetUpdateDeleteSupplier(APIView):
             serializer.update(instance=supplier, validated_data=request.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, supplier):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
+        r.has_permission()
+        supplier = Suppliers.objects.get(pk=supplier)
+        supplier.delete()
+        return Response("done", status=status.HTTP_204_NO_CONTENT)
 
 
 class GetSupplierPurchases(APIView):
@@ -86,11 +98,11 @@ class GetSupplierPurchases(APIView):
 
 
 class GetCreateCustomers(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_show_customers")
-        r.has_permission()
+        # r = RolesPermissionsCheck(request, "can_show_customers")
+        # r.has_permission()
         customers = Customers.objects.all()
         data = []
         for customer in customers:
@@ -106,8 +118,8 @@ class GetCreateCustomers(APIView):
         return HttpResponse(final, content_type='application/json; charset=utf-8')
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_customer")
-        r.has_permission()
+        # r = RolesPermissionsCheck(request, "can_add_customer")
+        # r.has_permission()
         serializer = CreateUpdateCustomerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -116,11 +128,14 @@ class GetCreateCustomers(APIView):
 
 
 class GetCustomerDetails(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, customer):
-        r = RolesPermissionsCheck(request, "can_show_customers")
-        r.has_permission()
+        # r = RolesPermissionsCheck(request, "can_show_customers")
+        # r.has_permission()
+        customer_obj = Customers.objects.get(id=customer)
+        serializer = CreateUpdateCustomerSerializer(customer_obj)
+        obj = serializer.data
         allInvoices = SaleInvoice.objects.filter(customer=customer)
         invoiceDue = SaleInvoice.objects.filter(customer=customer, paid=False)
         lastInvoice = allInvoices.latest("id")
@@ -129,27 +144,39 @@ class GetCustomerDetails(APIView):
         paymentTotal = 0
         for item in allInvoices:
             total += item.total
-            for obj in item.SalePayments.all():
-                paymentTotal += obj.Amount
+            for i in item.SalePayments.all():
+                paymentTotal += i.Amount
             try:
                 object = item.SalePayments.all().latest("id")
                 if object.id > big:
-                    big = object.id
-
+                    big += object.id
             except ObjectDoesNotExist:
                 pass
-        object = {
-            'Invoice Number': allInvoices.count(),
-            'invoice Due Number': invoiceDue.count(),
-            'Last Invoice': lastInvoice.id,
-            'Last Payment': big,
-            "total": total,
-            "total Payments": paymentTotal,
-            " due amount": total - paymentTotal,
-        }
+        obj["Invoice Number"]= allInvoices.count()
+        obj["invoice Due Number"]= invoiceDue.count()
+        obj["Last Invoice"]= lastInvoice.id
+        obj["Last Payment"]= big
+        obj["total"]= total
+        obj["total Payments"]= paymentTotal
+        obj["due amount"]= total - paymentTotal
+        return Response(obj, status=status.HTTP_200_OK)
 
-        final = json.dumps(object)
-        return HttpResponse(final, content_type='application/json; charset=utf-8')
+    def put(self, request, customer):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
+        r.has_permission()
+        obj = Customers.objects.get(id=customer)
+        serializer = CreateUpdateCustomerSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.update(instance=obj, validated_data=request.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, customer):
+        r = RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
+        r.has_permission()
+        obj = Customers.objects.get(id=customer)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])

@@ -4,4 +4,4 @@ from  .models import *
 admin.site.register(PurchaseInvoice)
 admin.site.register(PurchaseInvoice_products)
 admin.site.register(PurchasePayments)
-admin.site.register(Attachments)
+

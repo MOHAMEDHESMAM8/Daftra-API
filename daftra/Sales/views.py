@@ -124,7 +124,7 @@ class createSaleInvoice(APIView):
 
 # todo  check from front upload photo is working
 class updateSaleInvoice(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, id):
@@ -137,7 +137,11 @@ class updateSaleInvoice(APIView):
         obj["country"] = invoice.customer.user.country
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
+        if invoice.sales_officer is not None:
+            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+
         for item in obj.get("SaleInvoice_products"):
+
             print(item)
             product = Products.objects.get(id=item.get("product"))
             item['product_name'] = product.name
