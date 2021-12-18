@@ -15,5 +15,6 @@ urlpatterns = [
     path('allCustomersList', csrf_exempt(get_all_customer), name='allcustomerlist'),
     path('allProductsList', csrf_exempt(get_all_products), name='allProductList'),
     path('allWarehousesList', csrf_exempt(get_all_warehouse), name='allwarehouseList'),
+    path('allEmployeesList', csrf_exempt(get_all_employee), name='allEmployeesList'),
 
 ]

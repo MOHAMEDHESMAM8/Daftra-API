@@ -82,6 +82,17 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                            )
         return invoice
 
+
+class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
+    PurchaseInvoice_products = PurchaseInvoice_productsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PurchaseInvoice
+        fields = ['supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'Received', 'shipping_fees',
+                  'notes', 'payment_terms', 'total', 'date', 'attachment'
+                  'PurchaseInvoice_products']
+
+
     def update(self, instance, validated_data):
         # update Invoice instance
         instance.supplier_id = validated_data.get('supplier', instance.supplier_id)

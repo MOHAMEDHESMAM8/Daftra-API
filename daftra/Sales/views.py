@@ -162,7 +162,7 @@ class updateSaleInvoice(APIView):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         r.has_permission()
         invoice = SaleInvoice.objects.get(pk=id)
-        serializer = SaleInvoiceSerializer(invoice, request.data.dict())
+        serializer = UpdateSaleInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
             serializer.update(instance=invoice, validated_data=request.data.dict())
 
@@ -368,6 +368,21 @@ def get_all_customer(request):
         data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsEmployee])
+def get_all_employee(request):
+    employee = Employees.objects.all().order_by("id")
+    data = []
+    for item in employee:
+        obj = {
+            "name": item.user.first_name + " " + item.user.last_name,
+            "id": item.id
+        }
+        data.append(obj)
+    final = json.dumps(data)
+    return HttpResponse(final, content_type='application/json; charset=utf-8')
+
 
 
 @api_view(['GET'])

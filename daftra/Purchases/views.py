@@ -150,7 +150,7 @@ class updatePurchaseInvoice(APIView):
         r = RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         r.has_permission()
         invoice = PurchaseInvoice.objects.get(pk=invoice)
-        serializer = PurchaseInvoiceSerializer(invoice, request.data.dict())
+        serializer = UpdatePurchaseInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
             serializer.update(instance=invoice, validated_data=request.data.dict())
             return Response(serializer.data)

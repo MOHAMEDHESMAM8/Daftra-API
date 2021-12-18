@@ -120,6 +120,18 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                            )
         return invoice
 
+
+
+class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
+    SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SaleInvoice
+        fields = ['customer', 'warehouse', 'discount', 'discount_type', 'shipping_fees', 'shipping_details',
+                  'notes', 'payment_terms', 'total', 'date', 'attachment',
+                  'sales_officer', 'SaleInvoice_products']
+
+
     def update(self, instance, validated_data):
         # update Invoice instance
         instance.customer_id = validated_data.get('customer', instance.customer_id)
