@@ -145,10 +145,10 @@ class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
         instance.date = validated_data.get('date', instance.date)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
         instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
-        if validated_data.pop('sales_officer') is None:
+        if validated_data.get('sales_officer') is None:
             instance.sales_officer = None
         else:
-            instance.sales_officer_id = validated_data.pop('sales_officer'),
+            instance.sales_officer_id = validated_data.get('sales_officer'),
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM
