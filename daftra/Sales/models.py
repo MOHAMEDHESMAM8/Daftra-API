@@ -48,16 +48,17 @@ class SaleInvoice(models.Model):
     payment_terms = models.SmallIntegerField(null=True, blank=True)
     total = models.FloatField()
     date = models.DateField(null=True, blank=True)
-    attachment = models.FileField(upload_to='sales/%y/%m',null=True, blank=True)
-    sales_officer =  models.ForeignKey("Users.Employees", db_column='sales_officer', on_delete=models.SET_NULL,
-                                related_name='sales_officer',null=True, blank=True)
+    attachment = models.FileField(upload_to='sales/%y/%m', null=True, blank=True)
+    sales_officer = models.ForeignKey("Users.Employees", db_column='sales_officer', on_delete=models.SET_NULL,
+                                      related_name='sales_officer', null=True, blank=True)
 
 
 class SaleInvoice_products(models.Model):
     id = models.AutoField(primary_key=True)
     sales_invoice = models.ForeignKey(SaleInvoice, db_column='sales_invoice', on_delete=models.CASCADE,
                                       related_name="SaleInvoice_products")
-    product = models.ForeignKey('Store.Products', db_column='product', on_delete=models.PROTECT, related_name="SaleInvoice")
+    product = models.ForeignKey('Store.Products', db_column='product', on_delete=models.PROTECT,
+                                related_name="SaleInvoice")
     quantity = models.SmallIntegerField()
     unit_price = models.SmallIntegerField()
     count_after = models.SmallIntegerField()
@@ -68,10 +69,11 @@ class SaleInvoice_products(models.Model):
 
 class SalePayments(models.Model):
     id = models.AutoField(primary_key=True)
-    Collected_by = models.ForeignKey("Users.Employees", db_column='Collected_by', on_delete=models.SET(get_deleted_employee),
+    Collected_by = models.ForeignKey("Users.Employees", db_column='Collected_by',
+                                     on_delete=models.SET(get_deleted_employee),
                                      related_name="SalePayments_user")
     method = models.CharField(choices=payment_methods, max_length=20)
-    ref_no = models.CharField(max_length=25,null=True, blank=True)
+    ref_no = models.CharField(max_length=25, null=True, blank=True)
     Date = models.DateTimeField(auto_now_add=True)
     payment_details = models.TextField(null=True, blank=True)
     notes = models.TextField(null=True, blank=True)

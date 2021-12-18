@@ -165,7 +165,6 @@ class updateSaleInvoice(APIView):
         serializer = UpdateSaleInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
             serializer.update(instance=invoice, validated_data=request.data.dict())
-
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
