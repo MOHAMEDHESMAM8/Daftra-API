@@ -68,8 +68,6 @@ class SaleInvoice_productsSerializer(serializers.ModelSerializer):
                                )
 
 
-
-
 class SaleInvoiceSerializer(serializers.ModelSerializer):
     SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
 
@@ -121,7 +119,6 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
         return invoice
 
 
-
 class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
     SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
 
@@ -130,7 +127,6 @@ class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
         fields = ['customer', 'warehouse', 'discount', 'discount_type', 'shipping_fees', 'shipping_details',
                   'notes', 'payment_terms', 'total', 'date', 'attachment',
                   'sales_officer', 'SaleInvoice_products']
-
 
     def update(self, instance, validated_data):
         # update Invoice instance
@@ -145,14 +141,12 @@ class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
         instance.date = validated_data.get('date', instance.date)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
         instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
-        if validated_data.get('sales_officer') is None:
-            instance.sales_officer = None
-        else:
-            instance.sales_officer_id = validated_data.get('sales_officer'),
+        instance.sales_officer_id = validated_data.pop('sales_officer', instance.sales_officer_id)
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM
-        products = validated_data.get('SaleInvoice_products')
+
+        products = json.loads(validated_data.pop('SaleInvoice_products'))
         product_ids = [item['product'] for item in products]
         for product in instance.SaleInvoice_products.all():
             if product.product.id not in product_ids:

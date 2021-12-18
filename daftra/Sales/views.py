@@ -124,7 +124,7 @@ class createSaleInvoice(APIView):
 
 # todo  check from front upload photo is working
 class updateSaleInvoice(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, id):
