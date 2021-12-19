@@ -145,6 +145,7 @@ class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = validated_data.pop("user")
+        user["type"] = "employee"
         user = CreateUserSerializer.create(CreateUserSerializer(), user)
         employee = Employees.objects.create(user=user, role_id=validated_data.pop("role"),
                                             photo=validated_data.pop('photo')

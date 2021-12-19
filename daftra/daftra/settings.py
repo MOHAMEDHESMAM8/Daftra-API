@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup.apps.CleanupConfig',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -45,7 +46,6 @@ INSTALLED_APPS = [
     'Purchases',
     'Sales',
     'Appointments',
-
 ]
 
 MIDDLEWARE = [
@@ -182,3 +182,10 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+
+EMAIL_HOST_USER = 'hesmammohammed@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_PASSWORD = 'yfrzctiirlgcutel'
+EMAIL_USE_TLS = True

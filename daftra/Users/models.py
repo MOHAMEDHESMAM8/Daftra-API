@@ -163,6 +163,10 @@ class RolePermissions(models.Model):
     can_edit_Or_delete_employee = models.BooleanField(default=False)
     can_show_employees = models.BooleanField(default=False)
     can_management_roles = models.BooleanField(default=False)
+    delete_appointment = models.BooleanField(default=False)
+    create_appointment = models.BooleanField(default=False)
+    update_appointment = models.BooleanField(default=False)
+    show_appointment = models.BooleanField(default=False)
 
 
 def get_deleted_employee():

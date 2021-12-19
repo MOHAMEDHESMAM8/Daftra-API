@@ -135,8 +135,7 @@ class updateSaleInvoice(APIView):
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         if invoice.sales_officer is not None:
-            obj[
-                "sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
 
         for item in obj.get("SaleInvoice_products"):
             print(item)

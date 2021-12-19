@@ -1,9 +1,12 @@
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from Users.models import Customers
 from .permissions import IsEmployee, RolesPermissionsCheck
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,9 +27,18 @@ class getCreateAppointments(APIView):
 
     def post(self, request):
         RolesPermissionsCheck(request, "create_appointment")
+        send = request.data.pop("share_with_customer")
         serializer = AppointmentsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            subject = "Maha beauty(New appointment)"
+            message = f"You have new appointment on {serializer.data['date'] + ' ' + serializer.data['time']}  "
+            customer_email = Customers.objects.get(id=serializer.data['customer']).user.email
+            if send:
+                send_mail(subject=subject,
+                          message=message,
+                          recipient_list=[customer_email, ],
+                          from_email='hesmammohammed@gmail.com')
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -43,9 +55,18 @@ class GetUpdateDeleteAppointments(APIView):
     def put(self, request, appointment):
         RolesPermissionsCheck(request, "update_appointment")
         obj = Appointments.objects.get(id=appointment)
+        send = request.data.pop("share_with_customer")
         serializer = AppointmentsSerializer(obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            subject = "Maha beauty(Update Your appointment)"
+            message = f"You have new appointment on {serializer.data['date'] + ' ' + serializer.data['time']}  "
+            customer_email = Customers.objects.get(id=serializer.data['customer']).user.email
+            if send:
+                send_mail(subject=subject,
+                          message=message,
+                          recipient_list=[customer_email, ],
+                          from_email='hesmammohammed@gmail.com')
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -54,7 +75,6 @@ class GetUpdateDeleteAppointments(APIView):
         obj = Appointments.objects.get(id=appointment)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 
 class getCreateAppointmentsActions(APIView):
@@ -71,7 +91,6 @@ class getCreateAppointmentsActions(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class GetUpdateDeleteAppointmentsActions(APIView):
