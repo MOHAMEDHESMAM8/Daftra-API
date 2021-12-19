@@ -140,22 +140,22 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OutPermissions
-        fields = ["warehouse", "add_by", "notes", "OutPermissions_Products"]
+        fields = ["warehouse", "notes", "OutPermissions_Products"]
 
-    def create(self, validated_data):
+    def create(self, validated_data, user):
         products = validated_data.pop("OutPermissions_Products")
         if not products:
             raise serializers.ValidationError("you should add products")
         permission = OutPermissions.objects.create(
             warehouse_id=validated_data.pop("warehouse"),
-            add_by_id=validated_data.pop("add_by"),
+            add_by=user,
             notes=validated_data.pop("notes"),
         )
         OutPermissionsProductsSerializer.create(OutPermissionsProductsSerializer(), validated_data=products,
                                                 permission=permission)
 
         add_record_history(activity_type="add_outPermission",
-                           add_by=permission.add_by,
+                           add_by=user,
                            activity_id=permission.id,
                            outpermissions=permission
                            )
@@ -164,8 +164,7 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data,user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
-        instance.add_by_id = validated_data.pop("add_by", instance.add_by_id)
-        instance.notes = validated_data.pop("add_by", instance.notes)
+        instance.notes = validated_data.pop("notes", instance.notes)
         instance.save()
 
         products = validated_data.get("OutPermissions_Products")
@@ -284,16 +283,16 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AddPermissions
-        fields = ["warehouse", "add_by", "notes", "AddPermissions_Products"]
+        fields = ["warehouse", "notes", "AddPermissions_Products"]
 
-    def create(self, validated_data):
+    def create(self, validated_data, user):
         products = validated_data.pop("AddPermissions_Products")
         if not products:
             raise serializers.ValidationError("you should add products")
 
         permission = AddPermissions.objects.create(
             warehouse_id=validated_data.pop("warehouse"),
-            add_by_id=validated_data.pop("add_by"),
+            add_by=user,
             notes=validated_data.pop("notes"),
         )
         AddPermissionsProductsSerializer.create(AddPermissionsProductsSerializer(), validated_data=products,
@@ -302,7 +301,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
 
         # add record history
         add_record_history(activity_type="add_addPermission",
-                           add_by=permission.add_by,
+                           add_by=user,
                            activity_id=permission.id,
                            addpermissions=permission
                            )
@@ -310,8 +309,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data,user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
-        instance.add_by_id = validated_data.pop("add_by", instance.add_by_id)
-        instance.notes = validated_data.pop("add_by", instance.notes)
+        instance.notes = validated_data.pop("notes", instance.notes)
         instance.save()
 
         products = validated_data.get("AddPermissions_Products")

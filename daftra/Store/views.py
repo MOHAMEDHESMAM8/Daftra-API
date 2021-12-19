@@ -444,7 +444,7 @@ class CreateOutPermission(APIView):
 
         serializer = OutPermissionsSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.create(validated_data=request.data)
+            serializer.create(validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -462,7 +462,7 @@ class CreateAddPermission(APIView):
         r.has_permission()
         serializer = AddPermissionsSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.create(validated_data=request.data)
+            serializer.create(validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

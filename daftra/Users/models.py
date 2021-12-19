@@ -178,7 +178,7 @@ def get_deleted_employee():
 class Employees(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', related_name='employee')
-    role = models.ForeignKey(RolePermissions, on_delete=models.CASCADE, db_column='role')
+    role = models.ForeignKey(RolePermissions, on_delete=models.PROTECT, db_column='role')
     photo = models.ImageField(upload_to='employee/%y/%m', blank=True, null=True)
 
 

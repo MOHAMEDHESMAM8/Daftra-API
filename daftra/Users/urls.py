@@ -18,5 +18,7 @@ urlpatterns = [
     path('UpdateEmployee/<int:employee>', UpdateDeleteEmployees.as_view(), name=' get update delete employee'),
     path('Tax', GetCreateTaxs.as_view(), name=' get create tax'),
     path('UpdateTax/<int:tax>', UpdateDeleteTax.as_view(), name=' get update delete tax'),
+    path('Roles', GetCreateRoles.as_view(), name=' get create role'),
+    path('UpdateRole/<int:role>', UpdateDeleteRole.as_view(), name=' get update delete Roles'),
 
 ]

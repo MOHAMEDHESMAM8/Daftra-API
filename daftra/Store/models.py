@@ -76,7 +76,7 @@ class OutPermissions(models.Model):
     add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
 
 class OutPermissions_Products(models.Model):
@@ -95,7 +95,7 @@ class AddPermissions(models.Model):
     add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
 
 class AddPermissions_Products(models.Model):

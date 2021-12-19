@@ -11,8 +11,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token['first_name'] = user.first_name
-        token['role'] = user.employee.role.role
+        token['first_name'] = user.last_name
+        token['role'] = user.employee.role.id
+        token['id'] = user.employee.id
         return token
+
 
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,11 +85,6 @@ class SuppliersSerializer(serializers.ModelSerializer):
         return instance
 
 
-# printing lowercase
-
-
-
-
 class getSupplierSerializer(serializers.ModelSerializer):
     user = CreateUserSerializer(read_only=True)
 
@@ -101,7 +99,6 @@ class SupplierPurchasesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseInvoice
         fields = ["Received", "created_at", "id", "total"]
-
 
 
 class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
@@ -136,9 +133,9 @@ class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
     user = CreateUserSerializer()
+
     class Meta:
         model = Employees
         fields = ['role', 'photo', 'user']
@@ -176,3 +173,8 @@ class TaxSerializer(serializers.ModelSerializer):
         model = Tax
         fields = ["tax_name", "id", "tax_value", "product_included"]
 
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RolePermissions
+        fields = '__all__'
