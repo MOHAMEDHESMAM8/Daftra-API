@@ -12,4 +12,4 @@ class AppointmentsSerializer(serializers.ModelSerializer):
 class AppointmentActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = actions
-        fields ='__all__'
+        fields = '__all__'

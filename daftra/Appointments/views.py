@@ -113,3 +113,4 @@ class GetUpdateDeleteAppointmentsActions(APIView):
         obj = actions.objects.get(id=action)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
