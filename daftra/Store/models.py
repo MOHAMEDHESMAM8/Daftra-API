@@ -15,7 +15,6 @@ class Brands(models.Model):
     name = models.CharField(max_length=20)
 
 
-# TODO on delete product
 # TODO function mini_count
 class Products(models.Model):
     id = models.AutoField(primary_key=True)

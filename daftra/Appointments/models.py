@@ -12,7 +12,6 @@ status = (
     ('scheduled', "scheduled"),
     ('done', "done"),
     ('dismissed', "dismissed")
-
 )
 
 
@@ -22,7 +21,7 @@ class Appointments(models.Model):
     date = models.DateField()
     time = models.TimeField()
     duration = models.TimeField()
-    action = models.ForeignKey(actions, on_delete=models.CASCADE, db_column="action")
+    action = models.ForeignKey(actions, on_delete=models.SET_NULL, db_column="action", null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     employee = models.ForeignKey("Users.Employees",on_delete=models.SET(get_deleted_employee), db_column="employee",
                                  related_name="appointment_employee", null=True, blank=True)

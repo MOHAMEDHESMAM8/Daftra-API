@@ -39,8 +39,16 @@ class GetCreateSupplier(APIView):
     def get(self, request):
         RolesPermissionsCheck(request, "can_show_suppliers")
         suppliers = Suppliers.objects.all()
-        serializer = SuppliersSerializer(suppliers, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = []
+        for supplier in suppliers:
+            obj = {
+                "id":supplier.id,
+                "business_name": supplier.business_name,
+                "name": supplier.user.first_name + " " + supplier.user.last_name,
+                "country": supplier.user.country,
+            }
+            data.append(obj)
+        return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
         RolesPermissionsCheck(request, "can_add_supplier")

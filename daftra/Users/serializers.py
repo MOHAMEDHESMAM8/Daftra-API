@@ -31,7 +31,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class SuppliersSerializer(serializers.ModelSerializer):
-    user = UsersSerializer(read_only=True)
+    user = CreateUserSerializer(read_only=True)
 
     class Meta:
         model = Suppliers
@@ -55,7 +55,7 @@ class SuppliersSerializer(serializers.ModelSerializer):
             postal_code=user_data['postal_code'],
             password=random_num,
         )
-        user.set_password(user_data['password'])
+        user.set_password(user.password)
         user.save()
         supplier = Suppliers.objects.create(user=user,
                                             business_name=validated_data.get("business_name"),

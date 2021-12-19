@@ -21,7 +21,7 @@ from .permissions import IsEmployee, RolesPermissionsCheck
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_product_store(request, product):
     RolesPermissionsCheck(request, "can_show_products")
- 
+
     products = SaleInvoice_products.objects.filter(product_id=product)
     data = []
     for item in products:
@@ -361,7 +361,7 @@ class CreateProduct(APIView):
 
     def post(self, request):
         RolesPermissionsCheck(request, "can_add_product")
-     
+
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -396,13 +396,87 @@ class UpdateProduct(APIView):
         return Response("done", status=status.HTTP_204_NO_CONTENT)
 
 
+class getCreateBrand(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request):
+        objects = Brands.objects.all()
+        serializer = BrandSerializer(objects, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = BrandSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUpdateDeleteBrand(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, brand):
+        obj = Brands.objects.get(id=brand)
+        serializer = BrandSerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request, brand):
+        obj = Brands.objects.get(id=brand)
+        serializer = BrandSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, brand):
+        obj = Brands.objects.get(id=brand)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class getCreateCategory(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request):
+        objects = Categories.objects.all()
+        serializer = CategorySerializer(objects, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUpdateDeleteCategory(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, category):
+        obj = Categories.objects.get(id=category)
+        serializer = CategorySerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request, category):
+        obj = Categories.objects.get(id=category)
+        serializer = CategorySerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, category):
+        obj = Categories.objects.get(id=category)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class AllPermissions(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         RolesPermissionsCheck(request, "can_show_storePermissions")
-     
-
         out = OutPermissions.objects.all()
         add = AddPermissions.objects.all()
         data = []

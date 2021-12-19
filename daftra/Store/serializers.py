@@ -105,9 +105,20 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
 
-# TODO add category and show
-# TODO add Brand and show
 # TODO add update product record history and permissions and product store
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brands
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brands
+        fields = '__all__'
+
 
 class OutPermissionsProductsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -162,7 +173,7 @@ class OutPermissionsSerializer(serializers.ModelSerializer):
 
         return permission
 
-    def update(self, instance, validated_data,user):
+    def update(self, instance, validated_data, user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
         instance.notes = validated_data.pop("notes", instance.notes)
         instance.save()
@@ -298,7 +309,6 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
         AddPermissionsProductsSerializer.create(AddPermissionsProductsSerializer(), validated_data=products,
                                                 permission=permission)
 
-
         # add record history
         add_record_history(activity_type="add_addPermission",
                            add_by=user,
@@ -307,7 +317,7 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                            )
         return permission
 
-    def update(self, instance, validated_data,user):
+    def update(self, instance, validated_data, user):
         instance.warehouse_id = validated_data.pop("warehouse", instance.warehouse_id)
         instance.notes = validated_data.pop("notes", instance.notes)
         instance.save()

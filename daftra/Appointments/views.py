@@ -54,3 +54,43 @@ class GetUpdateDeleteAppointments(APIView):
         obj = Appointments.objects.get(id=appointment)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class getCreateAppointmentsActions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request):
+        objects = actions.objects.all()
+        serializer = AppointmentActionsSerializer(objects, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AppointmentActionsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class GetUpdateDeleteAppointmentsActions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, action):
+        obj = actions.objects.get(id=action)
+        serializer = AppointmentActionsSerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request, action):
+        obj = actions.objects.get(id=action)
+        serializer = AppointmentActionsSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, action):
+        obj = actions.objects.get(id=action)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

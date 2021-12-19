@@ -18,6 +18,9 @@ urlpatterns = [
     path('UpdateAddPermission/<int:permission>', UpdateAddPermission.as_view(), name='update'),
     path('RecordHistory/<int:addpermission>', csrf_exempt(get_add_permissions_recordhistory), name='record history'),
     path('RecordHistory/<int:outpermission>', csrf_exempt(get_out_permissions_recordhistory), name='record history'),
-
+    path('getCreateBrands', getCreateBrand.as_view(), name='get create'),
+    path('GetUpdateDeleteBrands/<int:brand>', GetUpdateDeleteBrand.as_view(), name='get update delete'),
+    path('getCreateCategory', getCreateCategory.as_view(), name='get create'),
+    path('GetUpdateDeleteCategory/<int:category>', GetUpdateDeleteCategory.as_view(), name='get update delete'),
 ]
 
