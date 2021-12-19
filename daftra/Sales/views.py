@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 from .permissions import RolesPermissionsCheck, IsEmployee
 from .serializers import *
 from Users.models import RecordHistory
@@ -125,7 +125,7 @@ class createSaleInvoice(APIView):
 # todo  check from front upload photo is working
 class updateSaleInvoice(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, FileUploadParser]
 
     def get(self, request, id):
         invoice = SaleInvoice.objects.get(pk=id)
@@ -138,10 +138,10 @@ class updateSaleInvoice(APIView):
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         if invoice.sales_officer is not None:
-            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+            obj[
+                "sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
 
         for item in obj.get("SaleInvoice_products"):
-
             print(item)
             product = Products.objects.get(id=item.get("product"))
             item['product_name'] = product.name
@@ -368,6 +368,7 @@ def get_all_customer(request):
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_all_employee(request):
@@ -381,7 +382,6 @@ def get_all_employee(request):
         data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
-
 
 
 @api_view(['GET'])

@@ -116,7 +116,7 @@ class User(AbstractUser):
     country = models.CharField(max_length=15, null=True, blank=True)
     notes = models.CharField(max_length=150, null=True, blank=True)
     email = models.EmailField(max_length=25, unique=True, blank=True)
-    postal_code = models.SmallIntegerField(null=True, blank=True)
+    postal_code = models.CharField(max_length=10,null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

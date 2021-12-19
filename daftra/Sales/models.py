@@ -43,7 +43,7 @@ class SaleInvoice(models.Model):
     discount_type = models.CharField(null=True, blank=True, choices=discount_types, max_length=20)
     paid = models.BooleanField(default=False)
     shipping_fees = models.SmallIntegerField(null=True, blank=True)
-    shipping_details = models.CharField(max_length=20, choices=Shipping_details)
+    shipping_details = models.CharField(max_length=20, choices=Shipping_details,null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     payment_terms = models.SmallIntegerField(null=True, blank=True)
     total = models.FloatField()

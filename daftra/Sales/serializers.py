@@ -121,6 +121,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
 class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
     SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
+    attachment = serializers.FileField(required=False)
 
     class Meta:
         model = SaleInvoice
