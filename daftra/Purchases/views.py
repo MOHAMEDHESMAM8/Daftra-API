@@ -82,8 +82,7 @@ def get_all_invoice(request):
                 where invoice.add_by = {n} """
             cursor.execute(query)
         else:
-            r = RolesPermissionsCheck(request, "can_show_purchaseBills")
-            r.has_permission()
+            RolesPermissionsCheck(request, "can_show_purchaseBills")
 
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
@@ -107,8 +106,7 @@ class createPurchaseInvoice(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        r = RolesPermissionsCheck(request, "can_add_purchaseBill")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_purchaseBill")
         serializer = PurchaseInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
             serializer.create(validated_data=request.data.dict(), user=request.user.employee)
@@ -147,8 +145,7 @@ class updatePurchaseInvoice(APIView):
         return Response(obj)
 
     def put(self, request, invoice, format=None):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         invoice = PurchaseInvoice.objects.get(pk=invoice)
         serializer = UpdatePurchaseInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
@@ -161,6 +158,7 @@ class ShowPayments(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
+
         payments = PurchaseInvoice.objects.get(pk=invoice)
         serializer = paymentsInvoiceSerializer(payments)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -228,8 +226,7 @@ class PaymentCreate(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        r = RolesPermissionsCheck(request, "can_add_paymentForBills")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_paymentForBills")
         serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
             data = json.loads(request.data.dict())

@@ -86,8 +86,7 @@ def get_all_invoice(request):
                             where invoice.sold_by = {n} """
             cursor.execute(query)
         else:
-            r = RolesPermissionsCheck(request, "can_show_saleBills")
-            r.has_permission()
+            RolesPermissionsCheck(request, "can_show_saleBills")
 
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
@@ -112,9 +111,7 @@ class createSaleInvoice(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        r = RolesPermissionsCheck(request, "can_add_saleBill")
-        r.has_permission()
-
+        RolesPermissionsCheck(request, "can_add_saleBill")
         serializer = SaleInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
             invoice = serializer.create(validated_data=request.data.dict(), user=request.user.employee)
@@ -159,8 +156,7 @@ class updateSaleInvoice(APIView):
         return Response(obj)
 
     def put(self, request, id, format=None):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         invoice = SaleInvoice.objects.get(pk=id)
         serializer = UpdateSaleInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
@@ -240,8 +236,7 @@ class PaymentCreate(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        r = RolesPermissionsCheck(request, "can_add_paymentForBills")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_paymentForBills")
         serializer = CreateUpdatePaymentSerializer(data=request.data.dict())
         if serializer.is_valid():
             data = json.loads(request.data.dict())
@@ -262,7 +257,7 @@ class PaymentCreate(APIView):
 
 
 class InvoiceStore(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
         products = SaleInvoice_products.objects.filter(sales_invoice=invoice)

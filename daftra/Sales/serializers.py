@@ -101,8 +101,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              date=validated_data.pop("date")
                                              )
         try:
-            attachment = validated_data.pop('attachment')
-            invoice.attachment = attachment
+            invoice.attachment = validated_data.pop('attachment')
             invoice.save()
         except KeyError:
             pass

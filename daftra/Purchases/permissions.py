@@ -31,6 +31,7 @@ class Factory:
     def __init__(self, type, employee):
         self.type = type
         self.employee = employee
+        self.has_permission()
 
     def checkRole(self):
         if self.type == "can_add_paymentForBills":

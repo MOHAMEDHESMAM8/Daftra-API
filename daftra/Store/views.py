@@ -20,8 +20,8 @@ from .permissions import IsEmployee, RolesPermissionsCheck
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_product_store(request, product):
-    r = RolesPermissionsCheck(request, "can_show_products")
-    r.has_permission()
+    RolesPermissionsCheck(request, "can_show_products")
+ 
     products = SaleInvoice_products.objects.filter(product_id=product)
     data = []
     for item in products:
@@ -360,8 +360,8 @@ class CreateProduct(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_product")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_product")
+     
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -381,8 +381,7 @@ class UpdateProduct(APIView):
         return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, product):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         product = Products.objects.get(id=product)
         serializer = ProductSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -391,8 +390,7 @@ class UpdateProduct(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, product):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_products")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         product = Products.objects.get(id=product)
         product.delete()
         return Response("done", status=status.HTTP_204_NO_CONTENT)
@@ -402,8 +400,8 @@ class AllPermissions(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_show_storePermissions")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_storePermissions")
+     
 
         out = OutPermissions.objects.all()
         add = AddPermissions.objects.all()
@@ -439,9 +437,7 @@ class CreateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_storePermission")
-        r.has_permission()
-
+        RolesPermissionsCheck(request, "can_add_storePermission")
         serializer = OutPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data, user=request.user.employee)
@@ -458,8 +454,7 @@ class CreateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_storePermission")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_storePermission")
         serializer = AddPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data, user=request.user.employee)
@@ -476,8 +471,7 @@ class UpdateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         product = OutPermissions.objects.get(id=permission)
         serializer = OutPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -486,8 +480,7 @@ class UpdateOutPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         permission_obj = OutPermissions.objects.get(id=permission)
         for item in permission_obj.OutPermissions_Products.all():
             # change product count
@@ -520,8 +513,7 @@ class UpdateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         product = AddPermissions.objects.get(id=permission)
         serializer = AddPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -530,8 +522,7 @@ class UpdateAddPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         permission_obj = AddPermissions.objects.get(id=permission)
         for item in permission_obj.AddPermissions_Products.all():
             # change product count

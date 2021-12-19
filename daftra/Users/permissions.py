@@ -15,8 +15,9 @@ class RolesPermissionsCheck():
     def __init__(self, request, type):
         self.type = type
         self.request = request
+        self.has_permission()
 
-    def has_permission(self, ):
+    def has_permission(self):
         employee = Employees.objects.get(user=self.request.user.id)
         factory = Factory(self.type, employee)
         if factory.checkRole():

@@ -37,15 +37,13 @@ class GetCreateSupplier(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_show_suppliers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_suppliers")
         suppliers = Suppliers.objects.all()
         serializer = SuppliersSerializer(suppliers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_supplier")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_supplier")
         serializer = SuppliersSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -60,18 +58,23 @@ class GetUpdateDeleteSupplier(APIView):
         suppliers = Suppliers.objects.get(id=supplier)
         serializer = getSupplierSerializer(suppliers)
         obj = serializer.data
-        all_invoices = PurchaseInvoice.objects.filter(supplier=supplier)
-        invoice_due = PurchaseInvoice.objects.filter(supplier=supplier, paid=False)
-        last_invoice = all_invoices.latest("id")
-        obj["invoiceDue"] = invoice_due.count()
-        obj["allInvoices"] = all_invoices.count()
-        obj["lastInvoice"] = last_invoice.id
+        try:
+            all_invoices = PurchaseInvoice.objects.filter(supplier=supplier)
+            invoice_due = PurchaseInvoice.objects.filter(supplier=supplier, paid=False)
+            last_invoice = all_invoices.latest("id")
+            obj["invoiceDue"] = invoice_due.count()
+            obj["allInvoices"] = all_invoices.count()
+            obj["lastInvoice"] = last_invoice.id
+        except ObjectDoesNotExist:
+            pass
         return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, supplier):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
         supplier = Suppliers.objects.get(pk=supplier)
+        user = supplier.user
+        user.email = "  "
+        user.save()
         serializer = SuppliersSerializer(supplier, data=request.data)
         if serializer.is_valid():
             serializer.update(instance=supplier, validated_data=request.data)
@@ -79,8 +82,7 @@ class GetUpdateDeleteSupplier(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, supplier):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
         supplier = Suppliers.objects.get(pk=supplier)
         supplier.delete()
         return Response("done", status=status.HTTP_204_NO_CONTENT)
@@ -90,8 +92,7 @@ class GetSupplierPurchases(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, supplier):
-        r = RolesPermissionsCheck(request, "can_show_suppliers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_suppliers")
         purchases = PurchaseInvoice.objects.filter(supplier_id=supplier)
         serializer = SupplierPurchasesSerializer(purchases, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -101,8 +102,7 @@ class GetCreateCustomers(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_show_customers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_customers")
         customers = Customers.objects.all()
         data = []
         for customer in customers:
@@ -118,8 +118,7 @@ class GetCreateCustomers(APIView):
         return HttpResponse(final, content_type='application/json; charset=utf-8')
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_customer")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_customer")
         serializer = CreateUpdateCustomerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -131,8 +130,7 @@ class GetCustomerDetails(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, customer):
-        r = RolesPermissionsCheck(request, "can_show_customers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_customers")
         customer_obj = Customers.objects.get(id=customer)
         serializer = CreateUpdateCustomerSerializer(customer_obj)
         obj = serializer.data
@@ -165,9 +163,11 @@ class GetCustomerDetails(APIView):
         return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, customer):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
         obj = Customers.objects.get(id=customer)
+        user = obj.user
+        user.email = "  "
+        user.save()
         serializer = CreateUpdateCustomerSerializer(obj, data=request.data)
         if serializer.is_valid():
             serializer.update(instance=obj, validated_data=request.data)
@@ -175,8 +175,7 @@ class GetCustomerDetails(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, customer):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
         obj = Customers.objects.get(id=customer)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -227,8 +226,7 @@ class GetCreateEmployees(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_show_employees")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_employees")
         employees = Employees.objects.all()
         data = []
         for employee in employees:
@@ -249,8 +247,7 @@ class GetCreateEmployees(APIView):
         return HttpResponse(final, content_type='application/json; charset=utf-8')
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_add_employee")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_add_employee")
         serializer = CreateUpdateEmployeeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -262,16 +259,17 @@ class UpdateDeleteEmployees(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, employee):
-        r = RolesPermissionsCheck(request, "can_show_employees")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_show_employees")
         obj = Employees.objects.get(id=employee)
         serializer = CreateUpdateEmployeeSerializer(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, employee):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
         obj = Employees.objects.get(id=employee)
+        user = obj.user
+        user.email = "  "
+        user.save()
         serializer = CreateUpdateEmployeeSerializer(obj, data=request.data)
         if serializer.is_valid():
             serializer.update(instance=obj, validated_data=request.data)
@@ -279,8 +277,7 @@ class UpdateDeleteEmployees(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, employee):
-        r = RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
         obj = Employees.objects.get(id=employee)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -295,8 +292,7 @@ class GetCreateTaxs(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_edit_feesSettings")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_feesSettings")
         serializer = TaxSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -313,8 +309,7 @@ class UpdateDeleteTax(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, tax):
-        r = RolesPermissionsCheck(request, "can_edit_feesSettings")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_feesSettings")
         obj = Tax.objects.get(id=tax)
         serializer = TaxSerializer(obj, data=request.data)
         if serializer.is_valid():
@@ -323,8 +318,7 @@ class UpdateDeleteTax(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, tax):
-        r = RolesPermissionsCheck(request, "can_edit_feesSettings")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_edit_feesSettings")
         obj = Tax.objects.get(id=tax)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -334,15 +328,13 @@ class GetCreateRoles(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        r = RolesPermissionsCheck(request, "can_management_roles")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_management_roles")
         obj = RolePermissions.objects.all()
         serializer = RoleSerializer(obj, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        r = RolesPermissionsCheck(request, "can_management_roles")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_management_roles")
         serializer = RoleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
@@ -354,15 +346,13 @@ class UpdateDeleteRole(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, role):
-        r = RolesPermissionsCheck(request, "can_management_roles")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_management_roles")
         obj = RolePermissions.objects.get(id=role)
         serializer = RoleSerializer(obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, role):
-        r = RolesPermissionsCheck(request, "can_management_roles")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_management_roles")
         obj = RolePermissions.objects.get(id=role)
         serializer = RoleSerializer(obj, data=request.data)
         if serializer.is_valid():
@@ -371,8 +361,7 @@ class UpdateDeleteRole(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, role):
-        r = RolesPermissionsCheck(request, "can_management_roles")
-        r.has_permission()
+        RolesPermissionsCheck(request, "can_management_roles")
         obj = RolePermissions.objects.get(id=role)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
