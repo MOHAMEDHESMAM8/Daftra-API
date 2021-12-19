@@ -136,29 +136,32 @@ class GetCustomerDetails(APIView):
         customer_obj = Customers.objects.get(id=customer)
         serializer = CreateUpdateCustomerSerializer(customer_obj)
         obj = serializer.data
-        allInvoices = SaleInvoice.objects.filter(customer=customer)
-        invoiceDue = SaleInvoice.objects.filter(customer=customer, paid=False)
-        lastInvoice = allInvoices.latest("id")
-        big = 0
-        total = 0
-        paymentTotal = 0
-        for item in allInvoices:
-            total += item.total
-            for i in item.SalePayments.all():
-                paymentTotal += i.Amount
-            try:
-                object = item.SalePayments.all().latest("id")
-                if object.id > big:
-                    big += object.id
-            except ObjectDoesNotExist:
-                pass
-        obj["Invoice Number"]= allInvoices.count()
-        obj["invoice Due Number"]= invoiceDue.count()
-        obj["Last Invoice"]= lastInvoice.id
-        obj["Last Payment"]= big
-        obj["total"]= total
-        obj["total Payments"]= paymentTotal
-        obj["due amount"]= total - paymentTotal
+        try:
+            allInvoices = SaleInvoice.objects.filter(customer=customer)
+            invoiceDue = SaleInvoice.objects.filter(customer=customer, paid=False)
+            lastInvoice = allInvoices.latest("id")
+            big = 0
+            total = 0
+            paymentTotal = 0
+            for item in allInvoices:
+                total += item.total
+                for i in item.SalePayments.all():
+                    paymentTotal += i.Amount
+                try:
+                    object = item.SalePayments.all().latest("id")
+                    if object.id > big:
+                        big += object.id
+                except ObjectDoesNotExist:
+                    pass
+            obj["Invoice Number"] = allInvoices.count()
+            obj["invoice Due Number"] = invoiceDue.count()
+            obj["Last Invoice"] = lastInvoice.id
+            obj["Last Payment"] = big
+            obj["total"] = total
+            obj["total Payments"] = paymentTotal
+            obj["due amount"] = total - paymentTotal
+        except ObjectDoesNotExist:
+            pass
         return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, customer):
@@ -327,7 +330,6 @@ class UpdateDeleteTax(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 class GetCreateRoles(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
@@ -374,8 +376,3 @@ class UpdateDeleteRole(APIView):
         obj = RolePermissions.objects.get(id=role)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-

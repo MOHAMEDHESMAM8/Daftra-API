@@ -135,6 +135,7 @@ class CreateUpdateCustomerSerializer(serializers.ModelSerializer):
 
 class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
     user = CreateUserSerializer()
+    photo = serializers.FileField(required=False)
 
     class Meta:
         model = Employees
@@ -162,7 +163,10 @@ class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
         user.notes = user_data['notes']
         user.postal_code = user_data['postal_code']
         instance.role_id = validated_data.get("role")
-        instance.photo = validated_data.get("photo")
+        try:
+            instance.photo = validated_data.get("photo")
+        except KeyError:
+            pass
         user.save()
         instance.save()
         return instance

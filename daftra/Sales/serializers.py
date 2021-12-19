@@ -70,6 +70,7 @@ class SaleInvoice_productsSerializer(serializers.ModelSerializer):
 
 class SaleInvoiceSerializer(serializers.ModelSerializer):
     SaleInvoice_products = SaleInvoice_productsSerializer(many=True, read_only=True)
+    attachment = serializers.FileField(required=False)
 
     class Meta:
         model = SaleInvoice
@@ -93,13 +94,18 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                              shipping_fees=validated_data.pop('shipping_fees'),
                                              shipping_details=validated_data.pop('shipping_details'),
                                              notes=validated_data.pop('notes'),
-                                             attachment=validated_data.pop('attachment'),
                                              payment_terms=validated_data.pop('payment_terms'),
                                              total=validated_data.pop('total'),
                                              sold_by=user,
                                              sales_officer_id=validated_data.pop('sales_officer'),
                                              date=validated_data.pop("date")
                                              )
+        try:
+            attachment = validated_data.pop('attachment')
+            invoice.attachment = attachment
+            invoice.save()
+        except KeyError:
+            pass
 
         SaleInvoice_productsSerializer.create(SaleInvoice_productsSerializer(), validated_data=products,
                                               invoice=invoice, warehouse=invoice.warehouse)
@@ -143,6 +149,10 @@ class UpdateSaleInvoiceSerializer(serializers.ModelSerializer):
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
         instance.shipping_details = validated_data.get('shipping_details', instance.shipping_details)
         instance.sales_officer_id = validated_data.pop('sales_officer', instance.sales_officer_id)
+        try:
+            instance.attachment = validated_data.get('attachment', instance.attachment)
+        except KeyError:
+            pass
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM
@@ -281,6 +291,8 @@ class paymentDetailsSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdatePaymentSerializer(serializers.ModelSerializer):
+    attachment = serializers.FileField(required=False)
+
     class Meta:
         model = SalePayments
         fields = ["id", "payment_details", "notes", "attachment", "sales_invoice",
