@@ -65,7 +65,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
         PurchaseInvoice_productsSerializer.create(PurchaseInvoice_productsSerializer(), validated_data=products,
                                                   invoice=invoice, warehouse=invoice.warehouse)
         if invoice.paid:
-            PurchasePayments.objects.create(Collected_by=invoice.sold_by,
+            PurchasePayments.objects.create(Collected_by=invoice.add_by,
                                             method=validated_data.get('payment_method'),
                                             ref_no=validated_data.get('payment_no'),
                                             Amount=invoice.total,
