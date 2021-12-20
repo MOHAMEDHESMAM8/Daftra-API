@@ -72,3 +72,4 @@ class PurchasePayments(models.Model):
     status = models.CharField(choices=payment_status, default='completed', max_length=20)
     purchase_invoice = models.ForeignKey(PurchaseInvoice, db_column='purchase_invoice', on_delete=models.CASCADE,
                                          related_name="PurchasePayments")
+    manual = models.BooleanField(default=False)
