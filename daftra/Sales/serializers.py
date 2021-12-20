@@ -108,6 +108,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
                                         ref_no=validated_data.get('payment_no'),
                                         Amount=invoice.total,
                                         sales_invoice=invoice,
+                                        manual=True
                                         )
         # create history record
         add_record_history(activity_type="create_sale",
@@ -289,7 +290,7 @@ class CreateUpdatePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalePayments
         fields = ["id", "payment_details", "notes", "attachment", "sales_invoice",
-                  "method", "ref_no", "status", "Collected_by", "manual", "Amount"]
+                  "method", "ref_no", "status", "Collected_by", "manual", "Date", "Amount"]
 
 
 class InvoiceStoreSerializer(serializers.ModelSerializer):

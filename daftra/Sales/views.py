@@ -162,7 +162,7 @@ class updateSaleInvoice(APIView):
                 item['tax2_name'] = tax2.tax_name
             except ObjectDoesNotExist:
                 pass
-        amount_of_paid =0
+        amount_of_paid = 0
         for item in invoice.SalePayments.all():
             amount_of_paid += item.Amount
         obj["amount_of_paid"] = amount_of_paid

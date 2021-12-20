@@ -151,7 +151,10 @@ class updatePurchaseInvoice(APIView):
                 item['tax2_name'] = tax2.tax_name
             except ObjectDoesNotExist:
                 pass
-
+        amount_of_paid = 0
+        for item in invoice.PurchasePayments.all():
+            amount_of_paid += item.Amount
+        obj["amount_of_paid"] = amount_of_paid
         return Response(obj)
 
     def put(self, request, invoice, format=None):
@@ -163,7 +166,7 @@ class updatePurchaseInvoice(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request,invoice):
+    def delete(self, request, invoice):
         RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         obj = PurchaseInvoice.objects.get(id=invoice)
         obj.delete()
