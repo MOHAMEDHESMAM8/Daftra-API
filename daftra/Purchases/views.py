@@ -41,7 +41,7 @@ def get_all_invoice(request):
     for invoice in invoices:
         obj = {
             "id": invoice.id,
-            "created_at": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
+            "created_at_invoice": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
             "total": invoice.total,
             "paid": invoice.paid,
             "supplier": invoice.supplier.id,
