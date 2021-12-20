@@ -401,8 +401,11 @@ class UpdateProduct(APIView):
     def delete(self, request, product):
         RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         product = Products.objects.get(id=product)
-        product.delete()
-        return Response("done", status=status.HTTP_204_NO_CONTENT)
+        try:
+            product.delete()
+        except ProtectedError:
+            return Response("لا يمكن حذف هذا المنتج لارتباطه بحقول اخرى", status=status.HTTP_400_BAD_REQUEST)
+        return Response("تم الحذف", status=status.HTTP_204_NO_CONTENT)
 
 
 class getCreateBrand(APIView):

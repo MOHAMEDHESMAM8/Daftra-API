@@ -359,6 +359,8 @@ def get_all_supplier(request):
     customers = Suppliers.objects.all().order_by("id")
     data = []
     for item in customers:
+        if not item.user.is_active:
+            continue
         obj = {
             "name": item.user.first_name + " " + item.user.last_name,
             "id": item.id

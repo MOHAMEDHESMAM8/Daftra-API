@@ -370,6 +370,8 @@ def get_all_customer(request):
     customers = Customers.objects.all().order_by("id")
     data = []
     for item in customers:
+        if not item.user.is_active:
+            continue
         obj = {
             "name": item.user.first_name + " " + item.user.last_name,
             "id": item.id
@@ -385,6 +387,8 @@ def get_all_employee(request):
     employee = Employees.objects.all().order_by("id")
     data = []
     for item in employee:
+        if not item.user.is_active:
+            continue
         obj = {
             "name": item.user.first_name + " " + item.user.last_name,
             "id": item.id
