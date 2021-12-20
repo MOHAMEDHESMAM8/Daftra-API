@@ -32,16 +32,6 @@ def update_invoice_status(invoice, current=0, update=0):
     else:
         return "error"
 
-
-def dictfetchall(cursor):
-    "Returns all rows from a cursor as a dict"
-    desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
@@ -54,7 +44,7 @@ def get_all_invoice(request):
             "created_at": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
             "total": invoice.total,
             "paid": invoice.paid,
-            "supplier": invoice.supplier,
+            "supplier": invoice.supplier.id,
             "supplier_name": invoice.customer.user.first_name + " " + invoice.customer.user.last_name,
         }
         data.append(obj)
