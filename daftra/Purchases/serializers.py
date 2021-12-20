@@ -38,7 +38,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id', 'supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'paid', 'Received',
+        fields = ['id', 'supplier',  'warehouse', 'discount', 'discount_type', 'paid', 'Received',
                   'shipping_fees',
                   'notes', 'payment_terms', 'total', 'date', 'attachment', 'PurchaseInvoice_products']
 
@@ -71,7 +71,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
         # create history record
         add_record_history(activity_type="create_purchase",
                            purchase=invoice,
-                           add_by=invoice.add_by,
+                           add_by=user,
                            activity_id=invoice.id,
                            )
         return invoice
@@ -82,7 +82,7 @@ class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id', 'supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'Received', 'shipping_fees',
+        fields = ['id', 'supplier', 'warehouse', 'discount', 'discount_type', 'Received', 'shipping_fees',
                   'notes', 'payment_terms', 'total', 'date', 'attachment', 'PurchaseInvoice_products']
 
     def update(self, instance, validated_data):
