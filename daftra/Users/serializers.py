@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import *
@@ -144,7 +146,7 @@ class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
         fields = ['role', 'photo', 'user']
 
     def create(self, validated_data):
-        user = validated_data.pop("user")
+        user = json.loads(validated_data.pop("user"))
         user["type"] = "employee"
         user = CreateUserSerializer.create(CreateUserSerializer(), user)
         employee = Employees.objects.create(user=user, role_id=validated_data.pop("role"),
@@ -153,7 +155,7 @@ class CreateUpdateEmployeeSerializer(serializers.ModelSerializer):
         return employee
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        user_data = json.loads(validated_data.pop("user"))
         user = User.objects.get(id=instance.user.id)
         user.first_name = user_data['first_name']
         user.last_name = user_data["last_name"]
@@ -186,3 +188,16 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = RolePermissions
         fields = '__all__'
+
+
+class NotesActionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotesActions
+        fields = '__all__'
+
+
+class NotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notes
+        fields = '__all__'
+

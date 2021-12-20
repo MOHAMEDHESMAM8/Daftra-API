@@ -1,6 +1,4 @@
 from django.http import HttpResponse
-
-import json
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated

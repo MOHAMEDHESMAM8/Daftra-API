@@ -1,13 +1,11 @@
 from django.http import HttpResponse
-
-import json
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
+from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from .permissions import RolesPermissionsCheck, IsEmployee
 from .serializers import *
 from Users.models import RecordHistory

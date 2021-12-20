@@ -1,18 +1,10 @@
-import json
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.http import HttpResponse
 from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from rest_framework.permissions import IsAuthenticated
 from Users.models import Customers
 from .permissions import IsEmployee, RolesPermissionsCheck
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import *
 from .serializers import *
 
 
@@ -113,4 +105,3 @@ class GetUpdateDeleteAppointmentsActions(APIView):
         obj = actions.objects.get(id=action)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-

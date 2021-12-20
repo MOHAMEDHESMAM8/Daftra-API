@@ -1,18 +1,16 @@
 import json
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .permissions import IsEmployee, RolesPermissionsCheck
-from Sales.views import dictfetchall
 from .serializers import *
 from Sales.models import SaleInvoice
-from django.db import connection
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -42,7 +40,7 @@ class GetCreateSupplier(APIView):
         data = []
         for supplier in suppliers:
             obj = {
-                "id":supplier.id,
+                "id": supplier.id,
                 "business_name": supplier.business_name,
                 "name": supplier.user.first_name + " " + supplier.user.last_name,
                 "country": supplier.user.country,
@@ -233,6 +231,7 @@ def get_all_Payment_customer(request, customer):
 
 class GetCreateEmployees(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         RolesPermissionsCheck(request, "can_show_employees")
@@ -257,15 +256,16 @@ class GetCreateEmployees(APIView):
 
     def post(self, request):
         RolesPermissionsCheck(request, "can_add_employee")
-        serializer = CreateUpdateEmployeeSerializer(data=request.data)
+        serializer = CreateUpdateEmployeeSerializer(data=request.data.dict())
         if serializer.is_valid():
             serializer.create(validated_data=request.data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data.dict(), status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateDeleteEmployees(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, employee):
         RolesPermissionsCheck(request, "can_show_employees")
@@ -279,9 +279,9 @@ class UpdateDeleteEmployees(APIView):
         user = obj.user
         user.email = "  "
         user.save()
-        serializer = CreateUpdateEmployeeSerializer(obj, data=request.data)
+        serializer = CreateUpdateEmployeeSerializer(obj, data=request.data.dict())
         if serializer.is_valid():
-            serializer.update(instance=obj, validated_data=request.data)
+            serializer.update(instance=obj, validated_data=request.data.dict())
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -374,3 +374,89 @@ class UpdateDeleteRole(APIView):
         obj = RolePermissions.objects.get(id=role)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CreateNotesActions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def post(self, request):
+        serializer = NotesActionsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUpdateDeleteNotesActions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, note):
+        obj = NotesActions.objects.get(id=note)
+        serializer = NotesActionsSerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request, note):
+        obj = NotesActions.objects.get(id=note)
+        serializer = NotesActionsSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, note):
+        obj = NotesActions.objects.get(id=note)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GetNotesActions(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, type):
+        objects = NotesActions.objects.filter(type=type)
+        serializer = NotesActionsSerializer(objects, many=True)
+        return Response(serializer.data)
+
+
+class CreateNotes(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        serializer = NotesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUpdateDeleteNotes(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request, note):
+        obj = Notes.objects.get(id=note)
+        serializer = NotesActionsSerializer(obj)
+        return Response(serializer.data)
+
+    def put(self, request, note):
+        obj = Notes.objects.get(id=note)
+        serializer = NotesSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, note):
+        obj = Notes.objects.get(id=note)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GetNotes(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, type):
+        objects = NotesActions.objects.filter(type=type)
+        serializer = NotesSerializer(objects, many=True)
+        return Response(serializer.data)

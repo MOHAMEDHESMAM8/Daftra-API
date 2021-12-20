@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -19,7 +18,6 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
@@ -116,7 +114,7 @@ class User(AbstractUser):
     country = models.CharField(max_length=15, null=True, blank=True)
     notes = models.CharField(max_length=150, null=True, blank=True)
     email = models.EmailField(max_length=25, unique=True, blank=True)
-    postal_code = models.CharField(max_length=10,null=True, blank=True)
+    postal_code = models.CharField(max_length=10, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -225,7 +223,7 @@ class RecordHistory(models.Model):
                                        blank=True)
     customer = models.ForeignKey(Customers, db_column='customer',
                                  on_delete=models.CASCADE, null=True, blank=True)
-    employee = models.ForeignKey(Employees, db_column='employee',on_delete=models.SET(get_deleted_employee), null=True,
+    employee = models.ForeignKey(Employees, db_column='employee', on_delete=models.SET(get_deleted_employee), null=True,
                                  blank=True, related_name="employee")
     activity_id = models.PositiveSmallIntegerField()
     purchase = models.ForeignKey("Purchases.PurchaseInvoice", db_column='purchase', on_delete=models.CASCADE,
@@ -247,13 +245,17 @@ class deletedActivities(models.Model):
     store_count = models.PositiveSmallIntegerField(null=True, blank=True, )
 
 
+class NotesActions(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=20, choices=notes_types)
+    name = models.CharField(max_length=20)
+
+
 class Notes(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateTimeField()
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
     type = models.CharField(max_length=20, choices=notes_types)
     person_id = models.IntegerField()
-    attachment = models.FileField(upload_to='Notes/%y/%m',null=True, blank=True, )
-
-    # Todo اجراء تنفيذ CRUD
-    # Todo حدث الحالة الى CRUD
+    attachment = models.FileField(upload_to='Notes/%y/%m', null=True, blank=True)
+    action = models.ForeignKey(NotesActions, db_column='action', on_delete=models.SET_NULL, null=True, blank=True)

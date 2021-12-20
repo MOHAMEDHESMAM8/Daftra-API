@@ -1,20 +1,16 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-
 import json
-from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import *
 from Sales.models import *
 from Users.models import RecordHistory
 from datetime import datetime, timedelta
-from django.db.models import Q, Exists, OuterRef
+from django.db.models import Exists, OuterRef
 from .permissions import IsEmployee, RolesPermissionsCheck
+from rest_framework.response import Response
 
 
 @api_view(['GET'])

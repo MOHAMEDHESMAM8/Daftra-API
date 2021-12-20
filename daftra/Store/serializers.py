@@ -1,10 +1,4 @@
-from django.apps import apps
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import fields
 from rest_framework import serializers
-from rest_framework.fields import ReadOnlyField
-from rest_framework.response import Response
-from .models import *
 from Users.models import *
 from Store.models import *
 from Sales.serializers import product_count, add_record_history
