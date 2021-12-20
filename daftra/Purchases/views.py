@@ -46,42 +46,42 @@ def dictfetchall(cursor):
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
     with connection.cursor() as cursor:
-        if request.user.employee.role.can_show_purchaseBills:
-            cursor.execute("""SELECT
-           invoice.id,
-           DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-           invoice.total,
-           invoice.paid,
-           invoice.supplier as supplier_id,
-           user.first_name as supplier_name
-           FROM
-               purchases_purchaseinvoice AS invoice
-           INNER JOIN users_suppliers AS supplier
-           ON
-               invoice.supplier = supplier.id
-           INNER JOIN users_user AS user
-           ON user.id = supplier.user
-           """)
-        elif request.user.employee.role.can_show_his_purchaseBills:
-            n = request.user.employee.id
-            query = f"""SELECT
-               invoice.id,
-               DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-               invoice.total,
-               invoice.paid,
-               invoice.supplier as supplier_id,
-               user.first_name as supplier_name
-               FROM
-                   purchases_purchaseinvoice AS invoice
-               INNER JOIN users_suppliers AS supplier
-               ON
-                   invoice.supplier = supplier.id
-               INNER JOIN users_user AS user
-               ON user.id = supplier.user
-                where invoice.add_by = {n} """
-            cursor.execute(query)
-        else:
-            RolesPermissionsCheck(request, "can_show_purchaseBills")
+        # if request.user.employee.role.can_show_purchaseBills:
+        cursor.execute("""SELECT
+       invoice.id,
+       DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+       invoice.total,
+       invoice.paid,
+       invoice.supplier as supplier_id,
+       user.first_name as supplier_name
+       FROM
+           purchases_purchaseinvoice AS invoice
+       INNER JOIN users_suppliers AS supplier
+       ON
+           invoice.supplier = supplier.id
+       INNER JOIN users_user AS user
+       ON user.id = supplier.user
+       """)
+        # elif request.user.employee.role.can_show_his_purchaseBills:
+        #     n = request.user.employee.id
+        #     query = f"""SELECT
+        #        invoice.id,
+        #        DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+        #        invoice.total,
+        #        invoice.paid,
+        #        invoice.supplier as supplier_id,
+        #        user.first_name as supplier_name
+        #        FROM
+        #            purchases_purchaseinvoice AS invoice
+        #        INNER JOIN users_suppliers AS supplier
+        #        ON
+        #            invoice.supplier = supplier.id
+        #        INNER JOIN users_user AS user
+        #        ON user.id = supplier.user
+        #         where invoice.add_by = {n} """
+        #     cursor.execute(query)
+        # else:
+        #     # RolesPermissionsCheck(request, "can_show_purchaseBills")
 
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
@@ -105,7 +105,7 @@ class createPurchaseInvoice(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        RolesPermissionsCheck(request, "can_add_purchaseBill")
+        # RolesPermissionsCheck(request, "can_add_purchaseBill")
         serializer = PurchaseInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
             invoice = serializer.create(validated_data=request.data.dict(), user=request.user.employee)
@@ -115,7 +115,7 @@ class createPurchaseInvoice(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         for item in request.data:
             obj = PurchaseInvoice.objects.get(id=item)
             try:
@@ -158,7 +158,7 @@ class updatePurchaseInvoice(APIView):
         return Response(obj)
 
     def put(self, request, invoice, format=None):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         invoice = PurchaseInvoice.objects.get(pk=invoice)
         serializer = UpdatePurchaseInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
@@ -167,7 +167,7 @@ class updatePurchaseInvoice(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, invoice):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
         obj = PurchaseInvoice.objects.get(id=invoice)
         obj.delete()
         return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
@@ -244,7 +244,7 @@ class PaymentCreate(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        RolesPermissionsCheck(request, "can_add_paymentForBills")
+        # RolesPermissionsCheck(request, "can_add_paymentForBills")
         serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
             data = json.loads(request.data.dict())

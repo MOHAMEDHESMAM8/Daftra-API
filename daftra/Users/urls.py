@@ -26,4 +26,5 @@ urlpatterns = [
     path('getNotes/<str:type>', GetNotes.as_view(), name=' get notes'),
     path('NotesDetails/<int:note>', GetUpdateDeleteNotes.as_view(), name=' get update delete notes'),
     path('create', CreateNotes.as_view(), name=' create notes'),
+
 ]

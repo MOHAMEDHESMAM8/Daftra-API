@@ -16,7 +16,7 @@ from rest_framework.response import Response
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_product_store(request, product):
-    RolesPermissionsCheck(request, "can_show_products")
+#     # RolesPermissionsCheck(request, "can_show_products")
 
     products = SaleInvoice_products.objects.filter(product_id=product)
     data = []
@@ -351,7 +351,7 @@ class ProductDetails(APIView):
 
 
 class CreateProduct(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         products = Products.objects.all()
@@ -359,7 +359,7 @@ class CreateProduct(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        RolesPermissionsCheck(request, "can_add_product")
+#         # RolesPermissionsCheck(request, "can_add_product")
 
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
@@ -368,7 +368,7 @@ class CreateProduct(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+#         # RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         for item in request.data:
             obj = Products.objects.get(id=item)
             try:
@@ -390,7 +390,7 @@ class UpdateProduct(APIView):
         return Response(obj, status=status.HTTP_200_OK)
 
     def put(self, request, product):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         product = Products.objects.get(id=product)
         serializer = ProductSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -399,7 +399,7 @@ class UpdateProduct(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, product):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_products")
         product = Products.objects.get(id=product)
         try:
             product.delete()
@@ -488,7 +488,7 @@ class AllPermissions(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        RolesPermissionsCheck(request, "can_show_storePermissions")
+        # RolesPermissionsCheck(request, "can_show_storePermissions")
         out = OutPermissions.objects.all()
         add = AddPermissions.objects.all()
         data = []
@@ -525,7 +525,7 @@ class CreateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        RolesPermissionsCheck(request, "can_add_storePermission")
+        # RolesPermissionsCheck(request, "can_add_storePermission")
         serializer = OutPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data, user=request.user.employee)
@@ -533,7 +533,7 @@ class CreateOutPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         for item in request.data:
             obj = OutPermissions.objects.get(id=item)
             try:
@@ -552,7 +552,7 @@ class CreateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        RolesPermissionsCheck(request, "can_add_storePermission")
+        # RolesPermissionsCheck(request, "can_add_storePermission")
         serializer = AddPermissionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.create(validated_data=request.data, user=request.user.employee)
@@ -560,7 +560,7 @@ class CreateAddPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         for item in request.data:
             obj = AddPermissions.objects.get(id=item)
             try:
@@ -579,7 +579,7 @@ class UpdateOutPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         product = OutPermissions.objects.get(id=permission)
         serializer = OutPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -588,7 +588,7 @@ class UpdateOutPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         permission_obj = OutPermissions.objects.get(id=permission)
         for item in permission_obj.OutPermissions_Products.all():
             # change product count
@@ -621,7 +621,7 @@ class UpdateAddPermission(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, permission):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         product = AddPermissions.objects.get(id=permission)
         serializer = AddPermissionsSerializer(product, data=request.data)
         if serializer.is_valid():
@@ -630,7 +630,7 @@ class UpdateAddPermission(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, permission):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
         permission_obj = AddPermissions.objects.get(id=permission)
         for item in permission_obj.AddPermissions_Products.all():
             # change product count

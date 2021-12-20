@@ -12,7 +12,7 @@ from .serializers import *
 
 
 class getCreateAppointments(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         # RolesPermissionsCheck(request, "show_appointment")
@@ -25,7 +25,7 @@ class getCreateAppointments(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        RolesPermissionsCheck(request, "create_appointment")
+        # RolesPermissionsCheck(request, "create_appointment")
         send = request.data.pop("share_with_customer")
         serializer = AppointmentsSerializer(data=request.data)
         if serializer.is_valid():
@@ -46,13 +46,13 @@ class GetUpdateDeleteAppointments(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, appointment):
-        RolesPermissionsCheck(request, "update_appointment")
+        # RolesPermissionsCheck(request, "update_appointment")
         obj = Appointments.objects.get(id=appointment)
         serializer = AppointmentsSerializer(obj)
         return Response(serializer.data)
 
     def put(self, request, appointment):
-        RolesPermissionsCheck(request, "update_appointment")
+        # RolesPermissionsCheck(request, "update_appointment")
         obj = Appointments.objects.get(id=appointment)
         send = request.data.pop("share_with_customer")
         serializer = AppointmentsSerializer(obj, data=request.data)
@@ -70,7 +70,7 @@ class GetUpdateDeleteAppointments(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, appointment):
-        RolesPermissionsCheck(request, "delete_appointment")
+        # RolesPermissionsCheck(request, "delete_appointment")
         obj = Appointments.objects.get(id=appointment)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

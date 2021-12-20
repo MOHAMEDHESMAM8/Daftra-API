@@ -48,44 +48,44 @@ def dictfetchall(cursor):
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
     with connection.cursor() as cursor:
-        if request.user.employee.role.can_show_saleBills:
-            cursor.execute("""SELECT
-                 invoice.id,
-                 DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-                 invoice.total,
-                 invoice.paid,
-                 invoice.customer as customer_id,
-                 user.first_name as customer_name
-                 FROM
-                     sales_saleinvoice AS invoice
-                 INNER JOIN users_customers AS customer
-                 ON
-                     invoice.customer = customer.id
-                 INNER JOIN users_user AS user
-                 ON
-                 user.id = customer.user
-                 """)
-        elif request.user.employee.role.can_show_his_saleBills:
-            n = request.user.employee.id
-            query = f"""SELECT
-                            invoice.id,
-                            DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-                            invoice.total,
-                            invoice.paid,
-                            invoice.customer as customer_id,
-                            user.first_name as customer_name
-                            FROM
-                                sales_saleinvoice AS invoice
-                            INNER JOIN users_customers AS customer
-                            ON
-                                invoice.customer = customer.id
-                            INNER JOIN users_user AS user
-                            ON
-                            user.id = customer.user
-                            where invoice.sold_by = {n} """
-            cursor.execute(query)
-        else:
-            RolesPermissionsCheck(request, "can_show_saleBills")
+        # if request.user.employee.role.can_show_saleBills:
+        cursor.execute("""SELECT
+             invoice.id,
+             DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+             invoice.total,
+             invoice.paid,
+             invoice.customer as customer_id,
+             user.first_name as customer_name
+             FROM
+                 sales_saleinvoice AS invoice
+             INNER JOIN users_customers AS customer
+             ON
+                 invoice.customer = customer.id
+             INNER JOIN users_user AS user
+             ON
+             user.id = customer.user
+             """)
+        # elif request.user.employee.role.can_show_his_saleBills:
+        #     n = request.user.employee.id
+        #     query = f"""SELECT
+        #                     invoice.id,
+        #                     DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
+        #                     invoice.total,
+        #                     invoice.paid,
+        #                     invoice.customer as customer_id,
+        #                     user.first_name as customer_name
+        #                     FROM
+        #                         sales_saleinvoice AS invoice
+        #                     INNER JOIN users_customers AS customer
+        #                     ON
+        #                         invoice.customer = customer.id
+        #                     INNER JOIN users_user AS user
+        #                     ON
+        #                     user.id = customer.user
+        #                     where invoice.sold_by = {n} """
+        #     cursor.execute(query)
+        # else:
+        #     # RolesPermissionsCheck(request, "can_show_saleBills")
 
         json_format = json.dumps(dictfetchall(cursor))
         data = json.loads(json_format)
@@ -110,7 +110,7 @@ class createSaleInvoice(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        RolesPermissionsCheck(request, "can_add_saleBill")
+        # RolesPermissionsCheck(request, "can_add_saleBill")
         serializer = SaleInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
             invoice = serializer.create(validated_data=request.data.dict(), user=request.user.employee)
@@ -120,7 +120,7 @@ class createSaleInvoice(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         for item in request.data:
             obj = SaleInvoice.objects.get(id=item)
             try:
@@ -170,7 +170,7 @@ class updateSaleInvoice(APIView):
         return Response(obj)
 
     def put(self, request, id, format=None):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         invoice = SaleInvoice.objects.get(pk=id)
         serializer = UpdateSaleInvoiceSerializer(invoice, request.data.dict())
         if serializer.is_valid():
@@ -179,7 +179,7 @@ class updateSaleInvoice(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
-        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
         obj = SaleInvoice.objects.get(id=id)
         obj.delete()
         return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
@@ -256,7 +256,7 @@ class PaymentCreate(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
-        RolesPermissionsCheck(request, "can_add_paymentForBills")
+        # RolesPermissionsCheck(request, "can_add_paymentForBills")
         serializer = CreateUpdatePaymentSerializer(data=request.data.dict())
         if serializer.is_valid():
             data = json.loads(request.data.dict())
