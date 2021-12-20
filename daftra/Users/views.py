@@ -43,6 +43,7 @@ class GetCreateSupplier(APIView):
                 "id": supplier.id,
                 "business_name": supplier.business_name,
                 "name": supplier.user.first_name + " " + supplier.user.last_name,
+                "is_active": supplier.user.is_active,
                 "country": supplier.user.country,
                 "add_by": supplier.add_by.user.first_name + " " + supplier.add_by.user.last_name,
             }
