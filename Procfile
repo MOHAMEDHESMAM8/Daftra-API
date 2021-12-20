@@ -1,0 +1,1 @@
+web: gunicorn --chdir daftra daftra.wsgi --log-file -

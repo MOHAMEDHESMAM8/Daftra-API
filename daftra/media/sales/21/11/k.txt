@@ -1,0 +1,32 @@
+ {
+        "customer": 1,
+        "warehouse": 1,
+        "discount": null,
+        "discount_type": null,
+        "paid": true,
+        "shipping_fees": 10,
+        "shipping_details": "auto",
+        "notes": "fff",
+        "payment_terms": null,
+        "payment_method": "cash",
+        "payment_no": null,
+        "total": 5440.0,
+        "SaleInvoice_products": [
+            {
+                "quantity": 2,
+                "unit_price": 500,
+                "count_after": 20,
+                "product": 1,
+                "tax1": 1,
+                "tax2": null
+            },
+            {
+                "quantity": 55,
+                "unit_price": 12,
+                "count_after": 2,
+                "product": 1,
+                "tax1": 1,
+                "tax2": null
+            }
+        ]
+    }

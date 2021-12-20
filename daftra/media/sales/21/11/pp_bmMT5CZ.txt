@@ -1,0 +1,25 @@
+idea 
+	Software for selling programmers projects
+	Receive offers through it after determining the approximate cost to the customer
+Goals
+	Targeting freelancer programmers to publish their applications through our site while benefiting from a percentage of sales
+	Expanding the name of our company by displaying developer applications (after studying them and making sure that they are suitable for work and company standards)
+	Making it easier for customers to transfer their business electronically
+	Receive offers from customers for their software after knowing the approximate cost
+	Providing the popular and most requested applications in several forms and features, such as software for a pharmacy, a store, a hotel, ......... etc.
+Benefit
+	20% on every sold project
+	Publish the name of the company on Wathiq points to gain the trust of customers
+	Facilitate receiving offers from customers and determining the prices of their software
+	
+stakeholder
+	programmers
+	business owners
+	Small business owners
+	testers
+	
+technology (يرجى وضع صور ليهم)
+	html css js ajax bootstrab jquery
+	php mysql 
+
+
