@@ -146,8 +146,7 @@ class updateSaleInvoice(APIView):
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         if invoice.sales_officer is not None:
-            obj[
-                "sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
 
         for item in obj.get("SaleInvoice_products"):
             print(item)
@@ -163,6 +162,10 @@ class updateSaleInvoice(APIView):
                 item['tax2_name'] = tax2.tax_name
             except ObjectDoesNotExist:
                 pass
+        amount_of_paid =0
+        for item in invoice.SalePayments.all():
+            amount_of_paid += item.Amount
+        obj["amount_of_paid"] = amount_of_paid
 
         return Response(obj)
 
