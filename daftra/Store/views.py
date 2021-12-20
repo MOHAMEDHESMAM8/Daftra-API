@@ -404,8 +404,8 @@ class UpdateProduct(APIView):
         try:
             product.delete()
         except ProtectedError:
-            return Response({"لا يمكن حذف هذا المنتج لارتباطه بحقول اخرى"}, status=status.HTTP_200_OK)
-        return Response({"تم الحذف"}, status=status.HTTP_200_OK)
+            return Response({"لا يمكن حذف هذا المنتج لارتباطه بحقول اخرى"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"تم الحذف"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class getCreateBrand(APIView):
