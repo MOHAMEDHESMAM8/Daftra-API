@@ -108,7 +108,7 @@ class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM
-        products = validated_data.get('PurchaseInvoice_products')
+        products = json.loads(validated_data.get('PurchaseInvoice_products'))
         product_ids = [item['product'] for item in products]
         for product in instance.PurchaseInvoice_products.all():
             if product.product.id not in product_ids:
