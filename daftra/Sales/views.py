@@ -414,6 +414,7 @@ def get_all_products(request):
             "id": item.id,
             "count": item.product_count(item.id),
             "selling_price": item.selling_price,
+            "purchasing_price": item.purchasing_price,
         }
         data.append(obj)
     final = json.dumps(data)
