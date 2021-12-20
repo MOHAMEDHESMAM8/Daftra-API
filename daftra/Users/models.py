@@ -215,7 +215,7 @@ class emails(models.Model):
 class RecordHistory(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=40, choices=RecordHistory_types)
-    product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.PROTECT, null=True,
+    product = models.ForeignKey("Store.Products", db_column='product', on_delete=models.CASCADE, null=True,
                                 blank=True)
     outPermissions = models.ForeignKey("Store.OutPermissions", db_column='outPermissions', on_delete=models.CASCADE,
                                        null=True,

@@ -1,4 +1,6 @@
 import json
+
+from django.db.models import ProtectedError
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -57,6 +59,16 @@ class GetCreateSupplier(APIView):
             serializer.create(validated_data=request.data, user_request=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_supplier")
+        for item in request.data:
+            supplier = Suppliers.objects.get(id=item)
+            try:
+                supplier.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GetUpdateDeleteSupplier(APIView):
@@ -134,6 +146,16 @@ class GetCreateCustomers(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_customers")
+        for item in request.data:
+            obj = Customers.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+
 
 class GetCustomerDetails(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
@@ -189,6 +211,8 @@ class GetCustomerDetails(APIView):
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# TODO chango to show active users only and suplier and employee
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
@@ -263,6 +287,16 @@ class GetCreateEmployees(APIView):
             serializer.create(validated_data=request.data)
             return Response(serializer.data.dict(), status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
+        for item in request.data:
+            obj = Employees.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateDeleteEmployees(APIView):

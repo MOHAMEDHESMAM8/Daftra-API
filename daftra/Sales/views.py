@@ -1,3 +1,4 @@
+from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
@@ -116,6 +117,16 @@ class createSaleInvoice(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
+        for item in request.data:
+            obj = SaleInvoice.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+
 
 # todo  check from front upload photo is working
 class updateSaleInvoice(APIView):
@@ -133,7 +144,8 @@ class updateSaleInvoice(APIView):
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         if invoice.sales_officer is not None:
-            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+            obj[
+                "sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
 
         for item in obj.get("SaleInvoice_products"):
             print(item)
@@ -160,6 +172,12 @@ class updateSaleInvoice(APIView):
             serializer.update(instance=invoice, validated_data=request.data.dict())
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_saleBill")
+        obj = SaleInvoice.objects.get(id=id)
+        obj.delete()
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class ShowPayments(APIView):

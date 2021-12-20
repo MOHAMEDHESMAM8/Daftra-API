@@ -1,3 +1,4 @@
+from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
@@ -111,12 +112,21 @@ class createPurchaseInvoice(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        for item in request.data:
+            obj = PurchaseInvoice.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+
 
 # todo  check from front upload photo is working
 class updatePurchaseInvoice(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
     parser_classes = [MultiPartParser, FormParser]
-
 
     def get(self, request, invoice):
         invoice = PurchaseInvoice.objects.get(pk=invoice)
@@ -151,12 +161,17 @@ class updatePurchaseInvoice(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request,invoice):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_purchaseBill")
+        obj = PurchaseInvoice.objects.get(id=invoice)
+        obj.delete()
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+
 
 class ShowPayments(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, invoice):
-
         payments = PurchaseInvoice.objects.get(pk=invoice)
         serializer = paymentsInvoiceSerializer(payments)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -255,7 +270,6 @@ class InvoiceStore(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 # todo send email recordhistory
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
@@ -346,10 +360,9 @@ def get_all_supplier(request):
     data = []
     for item in customers:
         obj = {
-            "name": item.user.first_name+" "+item.user.last_name,
+            "name": item.user.first_name + " " + item.user.last_name,
             "id": item.id
         }
         data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
-

@@ -21,7 +21,7 @@ class Products(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
     supplier = models.ForeignKey("Users.Suppliers", db_column='supplier', related_name='supplier',
-                                 on_delete=models.CASCADE)
+                                 on_delete=models.SET_NULL, null=True, blank=True)
     barcode = models.CharField(max_length=7, null=True, blank=True)
     selling_price = models.SmallIntegerField(null=True, blank=True)
     purchasing_price = models.SmallIntegerField(null=True, blank=True)
@@ -54,7 +54,7 @@ class Products(models.Model):
 class Product_count(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE, related_name="Product_count")
-    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.PROTECT)
     count = models.SmallIntegerField()
 
 
@@ -71,7 +71,7 @@ class ProductsCategory(models.Model):
 
 class OutPermissions(models.Model):
     id = models.AutoField(primary_key=True)
-    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.PROTECT)
     add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -90,7 +90,7 @@ class OutPermissions_Products(models.Model):
 
 class AddPermissions(models.Model):
     id = models.AutoField(primary_key=True)
-    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouses, db_column='warehouse', on_delete=models.PROTECT)
     add_by = models.ForeignKey("Users.Employees", db_column='add_by', on_delete=models.SET(get_deleted_employee))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

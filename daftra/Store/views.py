@@ -8,7 +8,7 @@ from .serializers import *
 from Sales.models import *
 from Users.models import RecordHistory
 from datetime import datetime, timedelta
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, ProtectedError
 from .permissions import IsEmployee, RolesPermissionsCheck
 from rest_framework.response import Response
 
@@ -306,8 +306,11 @@ class GetProducts(APIView):
                 "selling_price": item.selling_price,
                 "deactivate": item.deactivate,
                 "barcode": item.barcode,
-                "brand": item.brand.name,
             }
+            try:
+                obj["brand"] = item.brand.name
+            except AttributeError:
+                obj["brand"] = " "
             data.append(obj)
         json_format = json.dumps(data)
         return HttpResponse(json_format, content_type='application/json; charset=utf-8')
@@ -363,6 +366,16 @@ class CreateProduct(APIView):
             serializer.create(validated_data=request.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_products")
+        for item in request.data:
+            obj = Products.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateProduct(APIView):
@@ -516,6 +529,16 @@ class CreateOutPermission(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        for item in request.data:
+            obj = OutPermissions.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+
 
 class CreateAddPermission(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
@@ -532,6 +555,16 @@ class CreateAddPermission(APIView):
             serializer.create(validated_data=request.data, user=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        RolesPermissionsCheck(request, "can_edit_Or_delete_storePermission")
+        for item in request.data:
+            obj = AddPermissions.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateOutPermission(APIView):
