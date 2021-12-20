@@ -20,15 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%k0*34(hoxo==_wh8obx@xll9r2)4!26y=n^ii0=babz%57myl'
-
+# SECRET_KEY = 'django-insecure-%k0*34(hoxo==_wh8obx@xll9r2)4!26y=n^ii0=babz%57myl'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'django-insecure-%k0*34(hoxo==_wh8obx@xll9r2)4!26y=n^ii0=babz%57myl')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['mo-erp.herokuapp.com', '127.0.0.1']
-
+# DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
+# ALLOWED_HOSTS = ['mo-erp.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "mo-erp.herokuapp.com, 127.0.0.1").split(",")
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -84,9 +83,13 @@ WSGI_APPLICATION = 'daftra.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DEVELOPMENT_MODE = os.getenv("DEVELOPMENT_MODE", "False") == "True"
 
-DATABASES = {
-    'default': {
+import sys
+import dj_database_url
+if DEVELOPMENT_MODE is True:
+    DATABASES = {
+        'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'daftra',
         'USER': 'root',
@@ -94,10 +97,13 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '3306',
     }
-
-}
-import dj_database_url
-DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+    }
+elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
+    if os.getenv("DATABASE_URL", None) is None:
+        raise Exception("DATABASE_URL environment variable not defined")
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ.get("DATABASE_URL")),
+    }
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
