@@ -1,3 +1,6 @@
+
+from datetime import timedelta,datetime
+
 from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -9,12 +12,16 @@ from .serializers import *
 
 
 class getCreateAppointments(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
-        RolesPermissionsCheck(request, "show_appointment")
+        # RolesPermissionsCheck(request, "show_appointment")
         objects = Appointments.objects.all()
         serializer = AppointmentsSerializer(objects, many=True)
+        for item in serializer.data:
+            duration = int(item.get("duration"))
+            time = datetime.strptime(item.get("time"), "%H:%M:%S") + timedelta(minutes=duration)
+            item["end"] = time.strftime("%H:%M:%S")
         return Response(serializer.data)
 
     def post(self, request):

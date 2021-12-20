@@ -20,7 +20,7 @@ class Appointments(models.Model):
     customer = models.ForeignKey("Users.Customers", on_delete=models.CASCADE, db_column="customer")
     date = models.DateField()
     time = models.TimeField()
-    duration = models.TimeField()
+    duration = models.CharField(max_length=10)
     action = models.ForeignKey(actions, on_delete=models.SET_NULL, db_column="action", null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     employee = models.ForeignKey("Users.Employees",on_delete=models.SET(get_deleted_employee), db_column="employee",
