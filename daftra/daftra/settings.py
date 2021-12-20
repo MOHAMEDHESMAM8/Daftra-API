@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 # DEBUG = True
 DEBUG = os.getenv("DEBUG", "False") == "True"
 # ALLOWED_HOSTS = ['mo-erp.herokuapp.com', '127.0.0.1']
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "mo-erp.herokuapp.com, 127.0.0.1").split(",")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "maha-beauty-api-5uwe7.ondigitalocean.app, 127.0.0.1").split(",")
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
