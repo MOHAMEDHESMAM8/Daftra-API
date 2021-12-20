@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from django.core.management.utils import get_random_secret_key
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-%k0*34(hoxo==_wh8obx@xll9r2)4!26y=n^ii0=babz%57myl'
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'django-insecure-%k0*34(hoxo==_wh8obx@xll9r2)4!26y=n^ii0=babz%57myl')
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY",  get_random_secret_key())
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = os.getenv("DEBUG", "False") == "True"
