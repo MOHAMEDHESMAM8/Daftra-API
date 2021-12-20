@@ -44,7 +44,7 @@ class GetCreateSupplier(APIView):
                 "business_name": supplier.business_name,
                 "name": supplier.user.first_name + " " + supplier.user.last_name,
                 "country": supplier.user.country,
-                "add_by": supplier.emoployee.user.first_name + " " + supplier.emoployee.user.last_name,
+                "add_by": supplier.add_by.user.first_name + " " + supplier.add_by.user.last_name,
             }
             data.append(obj)
         return Response(data, status=status.HTTP_200_OK)
