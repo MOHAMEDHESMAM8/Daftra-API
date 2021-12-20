@@ -239,7 +239,7 @@ class CreateUpdatePaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchasePayments
         fields = ["id", "payment_details", "notes", "attachment", "purchase_invoice",
-                  "method", "ref_no", "status", "Collected_by", "Amount", "Date"]
+                  "method", "ref_no", "status", "Collected_by", "Amount"]
 
 
 class InvoiceStoreSerializer(serializers.ModelSerializer):
