@@ -119,7 +119,8 @@ class GetCreateCustomers(APIView):
                 "phone": customer.user.phone,
                 "id": customer.id,
                 "city": customer.user.city,
-                "address": customer.user.address
+                "address": customer.user.address,
+                "email": customer.user.email
             }
             data.append(obj)
         final = json.dumps(data)

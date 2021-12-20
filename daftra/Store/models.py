@@ -65,7 +65,7 @@ class Categories(models.Model):
 
 class ProductsCategory(models.Model):
     id = models.AutoField(primary_key=True)
-    product = models.ForeignKey(Products, db_column='product', on_delete=models.PROTECT, related_name="Category")
+    product = models.ForeignKey(Products, db_column='product', on_delete=models.CASCADE, related_name="Category")
     category = models.ForeignKey(Categories, db_column='category', on_delete=models.CASCADE, related_name="Category")
 
 

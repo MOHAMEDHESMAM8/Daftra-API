@@ -37,10 +37,19 @@ class ProductCategorySerializer(serializers.ModelSerializer):
 
     def create(self, product, validated_data):
         for item in validated_data:
-            ProductsCategory.objects.create(
-                product=product,
-                category_id=item.pop('category_id'),
-            )
+            category_id = item.pop('category_id')
+            if category_id != 0:
+                category_id = item.pop('category_id')
+                ProductsCategory.objects.create(
+                    product=product,
+                    category_id=category_id,
+                )
+            else:
+                category = Categories.objects.create(name=item.pop('category_name'))
+                ProductsCategory.objects.create(
+                    product=product,
+                    category=category,
+                )
         return validated_data
 
 
@@ -93,15 +102,26 @@ class ProductSerializer(serializers.ModelSerializer):
         # delete categories
         category_ids = [item['category_id'] for item in categories]
         for category in instance.Category.all():
-            if category.category not in category_ids:
+            if category.category.id not in category_ids:
                 category.delete()
         # add unexists category
         for item in categories:
             try:
-                obj = ProductsCategory.objects.get(category_id=item.get("category_id"), product=instance)
+                ProductsCategory.objects.get(category_id=item.get("category_id"), product=instance)
             except ObjectDoesNotExist:
-                ProductsCategory.objects.create(category_id=item.get("category_id"), product=instance)
-
+                category_id = item.get('category_id')
+                if category_id != 0:
+                    category_id = item.get('category_id')
+                    ProductsCategory.objects.create(
+                        product=instance,
+                        category_id=category_id,
+                    )
+                else:
+                    category = Categories.objects.create(name=item.pop('category_name'))
+                    ProductsCategory.objects.create(
+                        product=instance,
+                        category=category,
+                    )
         return instance
 
 
