@@ -52,12 +52,16 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
                                                  Received=validated_data.pop('Received'),
                                                  shipping_fees=validated_data.pop('shipping_fees'),
                                                  notes=validated_data.pop('notes'),
-                                                 attachment=validated_data.pop('attachment'),
                                                  payment_terms=validated_data.pop('payment_terms'),
                                                  total=validated_data.pop('total'),
                                                  add_by=user,
                                                  date=validated_data.pop("date")
                                                  )
+        try:
+            invoice.attachment = validated_data.pop('attachment')
+            invoice.save()
+        except KeyError:
+            pass
         PurchaseInvoice_productsSerializer.create(PurchaseInvoice_productsSerializer(), validated_data=products,
                                                   invoice=invoice, warehouse=invoice.warehouse)
         if invoice.paid:
@@ -93,11 +97,14 @@ class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
         instance.warehouse_id = validated_data.get('warehouse', instance.warehouse_id)
         instance.discount = validated_data.get('discount', instance.discount)
         instance.notes = validated_data.get('notes', instance.notes)
-        instance.attachment = validated_data.get('attachment', instance.attachment)
         instance.discount_type = validated_data.get('discount_type', instance.discount_type)
         instance.date = validated_data.get('date', instance.date)
         instance.Received = validated_data.get('Received', instance.Received)
         instance.shipping_fees = validated_data.get('shipping_fees', instance.shipping_fees)
+        try:
+            instance.attachment = validated_data.get('attachment', instance.attachment)
+        except KeyError:
+            pass
         instance.save()
 
         # FOR CHECK IF USER DELETE ANY ITEM
