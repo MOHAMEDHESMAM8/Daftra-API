@@ -328,6 +328,7 @@ def get_invoice_recordhistory(request, invoice):
                     "status": data_obj.status,
                     "invoice_total": data_obj.sales_invoice.total,
                     "invoice_status": data_obj.sales_invoice.paid,
+                    "invoice_id": data_obj.sales_invoice.id,
                 }
             except:
                 data_obj = deletedActivities.objects.get(payment=item.activity_id)
@@ -342,6 +343,7 @@ def get_invoice_recordhistory(request, invoice):
                     "status": data_obj.status,
                     "invoice_total": invoice_obj.total,
                     "invoice_status": invoice_obj.paid,
+                    "invoice_id": invoice_obj.id,
                 }
             data.append(obj)
         final = json.dumps(data)
