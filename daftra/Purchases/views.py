@@ -108,8 +108,10 @@ class createPurchaseInvoice(APIView):
         RolesPermissionsCheck(request, "can_add_purchaseBill")
         serializer = PurchaseInvoiceSerializer(data=request.data.dict())
         if serializer.is_valid():
-            serializer.create(validated_data=request.data.dict(), user=request.user.employee)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            invoice = serializer.create(validated_data=request.data.dict(), user=request.user.employee)
+            obj = serializer.data
+            obj["id"] = invoice.id
+            return Response(obj, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):

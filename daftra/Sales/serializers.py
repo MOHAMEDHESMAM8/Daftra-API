@@ -67,7 +67,7 @@ class SaleInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SaleInvoice
-        fields = ["id", 'customer', 'warehouse', 'discount', 'discount_type', 'paid', 'shipping_fees',
+        fields = ['id', 'customer', 'warehouse', 'discount', 'discount_type', 'paid', 'shipping_fees',
                   'shipping_details',
                   'notes', 'payment_terms', 'total', 'date', 'attachment',
                   'sales_officer', 'SaleInvoice_products']
