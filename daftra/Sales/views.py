@@ -47,55 +47,43 @@ def dictfetchall(cursor):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsEmployee])
 def get_all_invoice(request):
-    with connection.cursor() as cursor:
-        # if request.user.employee.role.can_show_saleBills:
-        cursor.execute("""SELECT
-             invoice.id,
-             DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-             invoice.total,
-             invoice.paid,
-             invoice.customer as customer_id,
-             user.first_name as customer_name
-             FROM
-                 sales_saleinvoice AS invoice
-             INNER JOIN users_customers AS customer
-             ON
-                 invoice.customer = customer.id
-             INNER JOIN users_user AS user
-             ON
-             user.id = customer.user
-             """)
-        # elif request.user.employee.role.can_show_his_saleBills:
-        #     n = request.user.employee.id
-        #     query = f"""SELECT
-        #                     invoice.id,
-        #                     DATE_FORMAT(invoice.created_at, "%d-%m-%Y %H:%m") as created_at_invoice,
-        #                     invoice.total,
-        #                     invoice.paid,
-        #                     invoice.customer as customer_id,
-        #                     user.first_name as customer_name
-        #                     FROM
-        #                         sales_saleinvoice AS invoice
-        #                     INNER JOIN users_customers AS customer
-        #                     ON
-        #                         invoice.customer = customer.id
-        #                     INNER JOIN users_user AS user
-        #                     ON
-        #                     user.id = customer.user
-        #                     where invoice.sold_by = {n} """
-        #     cursor.execute(query)
-        # else:
-        #     # RolesPermissionsCheck(request, "can_show_saleBills")
+    # if request.user.employee.role.can_show_saleBills:
+    invoices = SaleInvoice.objects.all()
+    data = []
+    for invoice in invoices:
+        obj = {
+            "id": invoice.id,
+            "created_at": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
+            "total": invoice.total,
+            "paid": invoice.paid,
+            "customer": invoice.customer,
+            "customer_name": invoice.customer.user.first_name + " " + invoice.customer.user.last_name,
+        }
+        data.append(obj)
 
-        json_format = json.dumps(dictfetchall(cursor))
-        data = json.loads(json_format)
-        for item in data:
-            invoice = item.get("id")
-            record = RecordHistory.objects.filter(sale=invoice).latest("id")
-            item["last_activaty"] = record.type
-            item['created_at'] = record.created_at.strftime("%m/%d/%Y, %H:%M:%S")
-        final = json.dumps(data)
-        cursor.close()
+    # elif request.user.employee.role.can_show_his_saleBills:
+    #     n = request.user.employee.id
+    #     invoices = SaleInvoice.objects.all(sold_by = n)
+    #     data = []
+    #     for invoice in invoices:
+    #         obj = {
+    #             "id": invoice.id,
+    #             "created_at": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
+    #             "total": invoice.total,
+    #             "paid": invoice.paid,
+    #             "customer": invoice.customer,
+    #             "customer_name": invoice.customer.user.first_name + " " + invoice.customer.user.last_name,
+    #         }
+    #         data.append(obj)
+    # else:
+    #     # RolesPermissionsCheck(request, "can_show_saleBills")
+
+    for item in data:
+        invoice = item.get("id")
+        record = RecordHistory.objects.filter(sale=invoice).latest("id")
+        item["last_activaty"] = record.type
+        item['created_at'] = record.created_at.strftime("%m/%d/%Y, %H:%M:%S")
+    final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
 
 
@@ -146,7 +134,8 @@ class updateSaleInvoice(APIView):
         obj["phone"] = invoice.customer.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         if invoice.sales_officer is not None:
-            obj["sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
+            obj[
+                "sales_officer_name"] = invoice.sales_officer.user.first_name + " " + invoice.sales_officer.user.last_name
 
         for item in obj.get("SaleInvoice_products"):
             print(item)
