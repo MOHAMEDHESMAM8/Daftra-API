@@ -44,6 +44,7 @@ class GetCreateSupplier(APIView):
                 "business_name": supplier.business_name,
                 "name": supplier.user.first_name + " " + supplier.user.last_name,
                 "country": supplier.user.country,
+                "add_by": supplier.emoployee.user.first_name + " " + supplier.emoployee.user.last_name,
             }
             data.append(obj)
         return Response(data, status=status.HTTP_200_OK)
@@ -52,7 +53,7 @@ class GetCreateSupplier(APIView):
         RolesPermissionsCheck(request, "can_add_supplier")
         serializer = SuppliersSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.create(validated_data=request.data)
+            serializer.create(validated_data=request.data, user_request=request.user.employee)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

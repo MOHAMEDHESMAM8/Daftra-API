@@ -190,6 +190,8 @@ class Suppliers(models.Model):
     business_name = models.CharField(max_length=25)
     Tax_id = models.CharField(max_length=30, blank=True, null=True)
     commercial_record = models.CharField(max_length=30, blank=True, null=True)
+    add_by = models.ForeignKey(Employees, db_column='employee', on_delete=models.SET(get_deleted_employee), null=True,
+                               blank=True)
 
 
 class Tax(models.Model):

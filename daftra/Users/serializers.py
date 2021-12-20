@@ -39,7 +39,7 @@ class SuppliersSerializer(serializers.ModelSerializer):
         model = Suppliers
         fields = ["id", "business_name", "Tax_id", "commercial_record", "user"]
 
-    def create(self, validated_data):
+    def create(self, validated_data, user_request):
         user_data = validated_data.get("user")
         random_num = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         user = User.objects.create(
@@ -63,6 +63,7 @@ class SuppliersSerializer(serializers.ModelSerializer):
                                             business_name=validated_data.get("business_name"),
                                             Tax_id=validated_data.get("Tax_id"),
                                             commercial_record=validated_data.get("commercial_record"),
+                                            add_by=user_request,
                                             )
         return supplier
 
