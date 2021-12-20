@@ -33,15 +33,14 @@ class PurchaseInvoice_productsSerializer(serializers.ModelSerializer):
         return invoice
 
 
-
 class PurchaseInvoiceSerializer(serializers.ModelSerializer):
     PurchaseInvoice_products = PurchaseInvoice_productsSerializer(many=True, read_only=True)
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'paid', 'Received', 'shipping_fees',
-                  'notes', 'payment_terms', 'total', 'date', 'attachment'
-                  'PurchaseInvoice_products']
+        fields = ['id', 'supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'paid', 'Received',
+                  'shipping_fees',
+                  'notes', 'payment_terms', 'total', 'date', 'attachment', 'PurchaseInvoice_products']
 
     def create(self, validated_data, user):
         products = json.loads(validated_data.pop('PurchaseInvoice_products'))
@@ -82,10 +81,8 @@ class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'Received', 'shipping_fees',
-                  'notes', 'payment_terms', 'total', 'date', 'attachment'
-                  'PurchaseInvoice_products']
-
+        fields = ['id', 'supplier', 'add_by', 'warehouse', 'discount', 'discount_type', 'Received', 'shipping_fees',
+                  'notes', 'payment_terms', 'total', 'date', 'attachment', 'PurchaseInvoice_products']
 
     def update(self, instance, validated_data):
         # update Invoice instance
@@ -126,8 +123,6 @@ class UpdatePurchaseInvoiceSerializer(serializers.ModelSerializer):
                 product_count(operation="-", product=product.product, quantity=product.quantity,
                               warehouse=instance.warehouse)
                 product.delete()
-
-
 
         # update and create  products
         for item in products:
