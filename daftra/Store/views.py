@@ -483,6 +483,7 @@ class AllPermissions(APIView):
                 "created_at": item.created_at.strftime("%m/%d/%Y, %H:%M:%S"),
                 "add_by": item.add_by.user.first_name + " " + item.add_by.user.last_name,
                 "notes": item.notes,
+                "warehouse_name": item.warehouse.name,
             }
             data.append(obj)
         for item in add:
@@ -492,6 +493,7 @@ class AllPermissions(APIView):
                 "created_at": item.created_at.strftime("%m/%d/%Y, %H:%M:%S"),
                 "add_by": item.add_by.user.first_name + " " + item.add_by.user.last_name,
                 "notes": item.notes,
+                "warehouse_name": item.warehouse.name,
             }
             data.append(obj)
         final = json.dumps(data)
