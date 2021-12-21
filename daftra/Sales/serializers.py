@@ -264,7 +264,7 @@ class paymentDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SalePayments
-        fields = ["id", "method", "ref_no", "Date", "status", "Amount", "employee_name", 'user']
+        fields = ["id", "method", "ref_no", "Date", "status", "Amount", "employee_name", 'user', 'sales_invoice']
 
     def get_user(self, obj):
         user = obj.sales_invoice.customer.user

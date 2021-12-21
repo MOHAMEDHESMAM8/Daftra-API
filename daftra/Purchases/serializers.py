@@ -38,7 +38,7 @@ class PurchaseInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id', 'supplier',  'warehouse', 'discount', 'discount_type', 'paid', 'Received',
+        fields = ['id', 'supplier', 'warehouse', 'discount', 'discount_type', 'paid', 'Received',
                   'shipping_fees',
                   'notes', 'payment_terms', 'total', 'date', 'attachment', 'PurchaseInvoice_products']
 
@@ -223,7 +223,7 @@ class paymentDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchasePayments
-        fields = ["id", "method", "ref_no", "Date", "status", "Amount", "employee_name", 'user']
+        fields = ["id", "method", "ref_no", "Date", "status", "Amount", "employee_name", 'user', 'purchase_invoice']
 
     def get_user(self, obj):
         user = obj.purchase_.customer.user
