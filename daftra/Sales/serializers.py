@@ -255,8 +255,7 @@ class paymentsInvoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SaleInvoice
-        fields = ["total", "SalePayments"
-                  ]
+        fields = ["total", "SalePayments"]
 
 
 class paymentDetailsSerializer(serializers.ModelSerializer):

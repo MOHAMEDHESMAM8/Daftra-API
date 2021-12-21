@@ -205,7 +205,7 @@ class PaymentDetails(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, payment):
-        obj = SalePayments.objects
+        obj = SalePayments.objects.get(id=payment)
         obj.sales_invoice.paid = False
         # add delete record
         delete_payment = deletedActivities.objects.create(
