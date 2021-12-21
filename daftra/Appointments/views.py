@@ -61,7 +61,7 @@ class getCreateAppointments(APIView):
 
 
 class GetUpdateDeleteAppointments(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request, appointment):
         # RolesPermissionsCheck(request, "update_appointment")
@@ -78,7 +78,7 @@ class GetUpdateDeleteAppointments(APIView):
             pass
         action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
-        return HttpResponse(obj, status=200)
+        return HttpResponse(json.dumps(obj), status=200)
 
     def put(self, request, appointment):
         # RolesPermissionsCheck(request, "update_appointment")
