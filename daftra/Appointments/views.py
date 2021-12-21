@@ -1,5 +1,4 @@
-
-from datetime import timedelta,datetime
+from datetime import timedelta, datetime
 
 from django.core.mail import send_mail
 from rest_framework import status
@@ -12,7 +11,7 @@ from .serializers import *
 
 
 class getCreateAppointments(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         # RolesPermissionsCheck(request, "show_appointment")
@@ -39,7 +38,7 @@ class getCreateAppointments(APIView):
                           recipient_list=[customer_email, ],
                           from_email='hesmammohammed@gmail.com')
             return Response(serializer.data)
-        return Response(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetUpdateDeleteAppointments(APIView):
