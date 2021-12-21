@@ -22,5 +22,7 @@ urlpatterns = [
     path('GetUpdateDeleteBrands/<int:brand>', GetUpdateDeleteBrand.as_view(), name='get update delete'),
     path('getCreateCategory', getCreateCategory.as_view(), name='get create'),
     path('GetUpdateDeleteCategory/<int:category>', GetUpdateDeleteCategory.as_view(), name='get update delete'),
+    path('GetCreateWarehouses', GetCreateWarehouses.as_view(), name='get create'),
+    path('UpdateDeleteWarehouses/<int:warehouse>', UpdateDeleteWarehouses.as_view(), name='get update delete'),
 ]
 

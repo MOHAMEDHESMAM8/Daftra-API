@@ -421,3 +421,10 @@ class AddPermissionsSerializer(serializers.ModelSerializer):
                            )
 
         return instance
+
+
+class WarehouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Warehouses
+        fields = '__all__'
+

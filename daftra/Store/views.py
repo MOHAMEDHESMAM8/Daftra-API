@@ -690,3 +690,50 @@ def get_out_permissions_recordhistory(request, outpermission):
             data.append(obj)
     final = json.dumps(data)
     return HttpResponse(final, content_type='application/json; charset=utf-8')
+
+
+class GetCreateWarehouses(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request):
+        # RolesPermissionsCheck(request, "can_management_roles")
+        obj = Warehouses.objects.all()
+        serializer = WarehouseSerializer(obj, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        # RolesPermissionsCheck(request, "can_management_roles")
+        serializer = WarehouseSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateDeleteWarehouses(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, warehouse):
+        # RolesPermissionsCheck(request, "can_management_roles")
+        obj = Warehouses.objects.get(id=warehouse)
+        serializer = WarehouseSerializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, warehouse):
+        # RolesPermissionsCheck(request, "can_management_roles")
+        obj = Warehouses.objects.get(id=warehouse)
+        serializer = WarehouseSerializer(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, warehouse):
+        # RolesPermissionsCheck(request, "can_management_roles")
+        obj = Warehouses.objects.get(id=warehouse)
+        try:
+            obj.delete()
+        except ProtectedError:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
