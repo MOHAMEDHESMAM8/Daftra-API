@@ -175,7 +175,6 @@ class ShowPayments(APIView):
 
 class PaymentDetails(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, payment):
         payments = SalePayments.objects.get(pk=payment)
@@ -184,9 +183,9 @@ class PaymentDetails(APIView):
 
     def put(self, request, payment, format=None):
         payment_obj = SalePayments.objects.get(pk=payment)
-        serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data.dict())
+        serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data)
         if serializer.is_valid():
-            data = json.loads(request.data.dict())
+            data = request.data
             invoice = data['sales_invoice']
             # check the total for invoice
             if update_invoice_status(invoice=invoice, current=data['Amount'],
@@ -227,7 +226,6 @@ class PaymentDetails(APIView):
 
 class PaymentCreate(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         payments = SalePayments.objects.all()
@@ -236,9 +234,9 @@ class PaymentCreate(APIView):
 
     def post(self, request, format=None):
         # RolesPermissionsCheck(request, "can_add_paymentForBills")
-        serializer = CreateUpdatePaymentSerializer(data=request.data.dict())
+        serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
-            data = json.loads(request.data.dict())
+            data = request.data
             # check the total for invoice
             if update_invoice_status(invoice=data['sales_invoice'], current=data['Amount']) == "error":
                 return HttpResponse({"failed: the Invoice can't be over-paid"}, status=status.HTTP_400_BAD_REQUEST)

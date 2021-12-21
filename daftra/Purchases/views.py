@@ -166,7 +166,6 @@ class ShowPayments(APIView):
 
 class PaymentDetails(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, payment):
         payments = PurchasePayments.objects.get(pk=payment)
@@ -177,7 +176,7 @@ class PaymentDetails(APIView):
         payment_obj = PurchasePayments.objects.get(pk=payment)
         serializer = CreateUpdatePaymentSerializer(payment_obj, data=request.data)
         if serializer.is_valid():
-            data = json.loads(request.data.dict())
+            data = request.data
             invoice = data['purchase_invoice']
             # check the total for invoice
             if update_invoice_status(invoice=invoice, current=data['Amount'],
@@ -218,7 +217,6 @@ class PaymentDetails(APIView):
 
 class PaymentCreate(APIView):
     permission_classes = [IsAuthenticated, IsEmployee]
-    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request):
         payments = PurchasePayments.objects.all()
@@ -229,7 +227,7 @@ class PaymentCreate(APIView):
         # RolesPermissionsCheck(request, "can_add_paymentForBills")
         serializer = CreateUpdatePaymentSerializer(data=request.data)
         if serializer.is_valid():
-            data = json.loads(request.data.dict())
+            data = request.data
 
             # check the total for invoice
             if update_invoice_status(invoice=data['sales_invoice'], current=data['Amount']) == "error":
