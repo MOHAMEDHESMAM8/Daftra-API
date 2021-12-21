@@ -102,7 +102,7 @@ class GetUpdateDeleteAppointments(APIView):
         # RolesPermissionsCheck(request, "delete_appointment")
         obj = Appointments.objects.get(id=appointment)
         obj.delete()
-        return HttpResponse({"done"}, status=400)
+        return HttpResponse({"done"}, status=204)
 
 
 class getCreateAppointmentsActions(APIView):
