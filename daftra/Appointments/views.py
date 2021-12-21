@@ -8,6 +8,7 @@ from .permissions import IsEmployee, RolesPermissionsCheck
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
+from Users.models import *
 
 
 class getCreateAppointments(APIView):
@@ -54,8 +55,9 @@ class GetUpdateDeleteAppointments(APIView):
         serializer = AppointmentsSerializer(obj)
         obj = serializer.data
         customer = Customers.objects.get(id=obj.get("customer"))
+
         obj["customer_name"] = customer.user.first_name + " " + customer.user.last_name
-        employee = Customers.objects.get(id=obj.get("employee"))
+        employee = Employees.objects.get(id=obj.get("employee"))
         obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
         action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
