@@ -57,8 +57,11 @@ class GetUpdateDeleteAppointments(APIView):
         customer = Customers.objects.get(id=obj.get("customer"))
 
         obj["customer_name"] = customer.user.first_name + " " + customer.user.last_name
-        employee = Employees.objects.get(id=obj.get("employee"))
-        obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
+        try:
+            employee = Employees.objects.get(id=obj.get("employee"))
+            obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
+        except ObjectDoesNotExist :
+            pass
         action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
         return Response(obj)
