@@ -45,7 +45,7 @@ def get_all_invoice(request):
             "total": invoice.total,
             "paid": invoice.paid,
             "supplier": invoice.supplier.id,
-            "supplier_name": invoice.customer.user.first_name + " " + invoice.customer.user.last_name,
+            "supplier_name": invoice.supplier.user.first_name + " " + invoice.supplier.user.last_name,
         }
         data.append(obj)
 
