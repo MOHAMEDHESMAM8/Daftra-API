@@ -39,7 +39,7 @@ class getCreateAppointments(APIView):
                           recipient_list=[customer_email, ],
                           from_email='hesmammohammed@gmail.com')
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, )
 
 
 class GetUpdateDeleteAppointments(APIView):
