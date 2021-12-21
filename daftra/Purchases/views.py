@@ -116,7 +116,7 @@ class updatePurchaseInvoice(APIView):
         invoice = PurchaseInvoice.objects.get(pk=invoice)
         serializer = PurchaseInvoiceSerializer(invoice)
         obj = serializer.data
-        obj["customer_name"] = invoice.supplier.user.first_name + " " + invoice.supplier.user.last_name
+        obj["supplier_name"] = invoice.supplier.user.first_name + " " + invoice.supplier.user.last_name
         obj["phone"] = invoice.supplier.user.phone
         obj["warehouse_name"] = invoice.warehouse.name
         for item in obj.get("PurchaseInvoice_products"):
