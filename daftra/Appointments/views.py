@@ -21,7 +21,7 @@ class getCreateAppointments(APIView):
             duration = int(item.get("duration"))
             time = datetime.strptime(item.get("time"), "%H:%M:%S") + timedelta(minutes=duration)
             item["end"] = time.strftime("%H:%M:%S")
-            customer = Customers.objects.get(id=item.get["customer"])
+            customer = Customers.objects.get(id=item.get("customer"))
             item["customer_name"] = customer.user.first_name + " " + customer.user.last_name
             item["customer_email"] = customer.user.email
             item["customer_phone"] = customer.user.phone
@@ -53,11 +53,11 @@ class GetUpdateDeleteAppointments(APIView):
         obj = Appointments.objects.get(id=appointment)
         serializer = AppointmentsSerializer(obj)
         obj = serializer.data
-        customer = Customers.objects.get(id=obj.get["customer"])
+        customer = Customers.objects.get(id=obj.get("customer"))
         obj["customer_name"] = customer.user.first_name + " " + customer.user.last_name
-        employee = Customers.objects.get(id=obj.get["employee"])
+        employee = Customers.objects.get(id=obj.get("employee"))
         obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
-        action = actions.objects.get(id=obj.get["action"])
+        action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
         return Response(obj)
 
