@@ -9,6 +9,7 @@ urlpatterns = [
     path('GetUpdateDeleteAppointments/<int:appointment>', GetUpdateDeleteAppointments.as_view(), name='get update delete'),
     path('getCreateActions', getCreateAppointmentsActions.as_view(), name='get create'),
     path('GetUpdateDeleteActions/<int:action>', GetUpdateDeleteAppointmentsActions.as_view(), name='get update delete'),
+    path('UpdateStatus/<int:id>', UpdateStatus.as_view(), name=' update '),
     # path('allInvoicesCustomer/<int:customer>', csrf_exempt(get_all_invoice_customer), name='allInvoices'),
 
 ]

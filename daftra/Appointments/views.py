@@ -60,7 +60,7 @@ class GetUpdateDeleteAppointments(APIView):
         try:
             employee = Employees.objects.get(id=obj.get("employee"))
             obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
-        except ObjectDoesNotExist :
+        except ObjectDoesNotExist:
             pass
         action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
@@ -128,3 +128,11 @@ class GetUpdateDeleteAppointmentsActions(APIView):
         obj = actions.objects.get(id=action)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UpdateStatus(APIView):
+    def put(self, request, id):
+        appointment = Appointments.objects.get(id=id)
+        appointment.status = request.data.get("status")
+        appointment.save()
+        return Response({"done"}, status=status.HTTP_200_OK)
