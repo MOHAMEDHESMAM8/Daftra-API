@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 
 from django.core.mail import send_mail
 from django.db.models import ProtectedError
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from Users.models import Customers
@@ -27,7 +28,7 @@ class getCreateAppointments(APIView):
             item["customer_name"] = customer.user.first_name + " " + customer.user.last_name
             item["customer_email"] = customer.user.email
             item["customer_phone"] = customer.user.phone
-        return Response(serializer.data)
+        return HttpResponse(serializer.data, status=200)
 
     def post(self, request):
         # RolesPermissionsCheck(request, "create_appointment")
@@ -43,8 +44,8 @@ class getCreateAppointments(APIView):
                           message=message,
                           recipient_list=[customer_email, ],
                           from_email='no-reply@maha-beauty.net')
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse(serializer.data, status=200)
+        return HttpResponse(serializer.errors, status=400)
 
     def delete(self, request):
         # RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
@@ -54,7 +55,7 @@ class getCreateAppointments(APIView):
                 obj.delete()
             except ProtectedError:
                 pass
-        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
+        return HttpResponse({"done"}, status=204)
 
 
 class GetUpdateDeleteAppointments(APIView):
@@ -75,7 +76,7 @@ class GetUpdateDeleteAppointments(APIView):
             pass
         action = actions.objects.get(id=obj.get("action"))
         obj["action_name"] = action.name
-        return Response(obj)
+        return HttpResponse(obj, status=200)
 
     def put(self, request, appointment):
         # RolesPermissionsCheck(request, "update_appointment")
@@ -92,14 +93,14 @@ class GetUpdateDeleteAppointments(APIView):
                           message=message,
                           recipient_list=[customer_email, ],
                           from_email='no-reply@maha-beauty.net')
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponse(serializer.data, status=200)
+        return HttpResponse(serializer.errors, status=400)
 
     def delete(self, request, appointment):
         # RolesPermissionsCheck(request, "delete_appointment")
         obj = Appointments.objects.get(id=appointment)
         obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return HttpResponse({"done"}, status=400)
 
 
 class getCreateAppointmentsActions(APIView):
@@ -146,4 +147,4 @@ class UpdateStatus(APIView):
         appointment = Appointments.objects.get(id=id)
         appointment.status = request.data.get("status")
         appointment.save()
-        return Response({"done"}, status=status.HTTP_200_OK)
+        return HttpResponse({"done"}, status=200)
