@@ -13,7 +13,7 @@ from Users.models import *
 
 
 class getCreateAppointments(APIView):
-    # permission_classes = [IsAuthenticated, IsEmployee]
+    permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         # RolesPermissionsCheck(request, "show_appointment")

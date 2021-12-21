@@ -1,5 +1,6 @@
 import json
 
+from django.core.mail import send_mail
 from django.db.models import ProtectedError
 from django.http import HttpResponse
 from rest_framework import status
@@ -326,6 +327,26 @@ class UpdateDeleteEmployees(APIView):
         obj = Employees.objects.get(id=employee)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmployeesSendData(APIView):
+    permission_classes = [IsAuthenticated, IsEmployee]
+
+    def get(self, request, employee):
+        # RolesPermissionsCheck(request, "can_show_employees")
+        obj = Employees.objects.get(id=employee).user
+        random_num = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        obj.set_password(random_num)
+        obj.save()
+        subject = "Login Data"
+        message = f"Your email is : {obj.email} \nYour password is : {random_num} "
+        customer_email = obj.email
+        if send_mail(subject=subject,
+                     message=message,
+                     recipient_list=[customer_email, ],
+                     from_email='no-reply@maha-beauty.net'):
+            return Response({'done'}, status=status.HTTP_200_OK)
+        return Response({'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetCreateTaxs(APIView):

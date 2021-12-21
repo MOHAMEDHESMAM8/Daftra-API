@@ -16,6 +16,7 @@ urlpatterns = [
     path('getPaymentsCustomer/<int:customer>', csrf_exempt(get_all_Payment_customer), name='allInvoices'),
     path('Employees', GetCreateEmployees.as_view(), name=' get create employees'),
     path('UpdateEmployee/<int:employee>', UpdateDeleteEmployees.as_view(), name=' get update delete employee'),
+    path('sendAccountData/<int:employee>', EmployeesSendData.as_view(), name='get'),
     path('Tax', GetCreateTaxs.as_view(), name=' get create tax'),
     path('UpdateTax/<int:tax>', UpdateDeleteTax.as_view(), name=' get update delete tax'),
     path('Roles', GetCreateRoles.as_view(), name=' get create role'),
