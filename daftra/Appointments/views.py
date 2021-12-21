@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta, datetime
 
 from django.core.mail import send_mail
@@ -28,7 +29,8 @@ class getCreateAppointments(APIView):
             item["customer_name"] = customer.user.first_name + " " + customer.user.last_name
             item["customer_email"] = customer.user.email
             item["customer_phone"] = customer.user.phone
-        return HttpResponse(serializer.data, status=200)
+        final = json.dumps(serializer.data)
+        return HttpResponse(final, status=200)
 
     def post(self, request):
         # RolesPermissionsCheck(request, "create_appointment")
