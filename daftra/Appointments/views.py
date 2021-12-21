@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 
 from django.core.mail import send_mail
+from django.db.models import ProtectedError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from Users.models import Customers
@@ -12,7 +13,7 @@ from Users.models import *
 
 
 class getCreateAppointments(APIView):
-    permission_classes = [IsAuthenticated, IsEmployee]
+    # permission_classes = [IsAuthenticated, IsEmployee]
 
     def get(self, request):
         # RolesPermissionsCheck(request, "show_appointment")
@@ -41,9 +42,19 @@ class getCreateAppointments(APIView):
                 send_mail(subject=subject,
                           message=message,
                           recipient_list=[customer_email, ],
-                          from_email='hesmammohammed@gmail.com')
+                          from_email='no-reply@maha-beauty.net')
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        # RolesPermissionsCheck(request, "can_edit_Or_delete_employee")
+        for item in request.data:
+            obj = Appointments.objects.get(id=item)
+            try:
+                obj.delete()
+            except ProtectedError:
+                pass
+        return Response({"done"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GetUpdateDeleteAppointments(APIView):
@@ -80,7 +91,7 @@ class GetUpdateDeleteAppointments(APIView):
                 send_mail(subject=subject,
                           message=message,
                           recipient_list=[customer_email, ],
-                          from_email='hesmammohammed@gmail.com')
+                          from_email='no-reply@maha-beauty.net')
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

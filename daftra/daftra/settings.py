@@ -94,7 +94,6 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '3306',
     }
-
 }
 import dj_database_url
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
@@ -183,9 +182,16 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
+# EMAIL_HOST_USER = 'hesmammohammed@gmail.com'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = '587'
+# EMAIL_HOST_PASSWORD = 'yfrzctiirlgcutel'
+# EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'hesmammohammed@gmail.com'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = '587'
-EMAIL_HOST_PASSWORD = 'yfrzctiirlgcutel'
+DEFAULT_FROM_EMAIL = "no-reply@maha-beauty.net"
+EMAIL_HOST = "mail.maha-beauty.net"
+EMAIL_HOST_USER = "no-reply@maha-beauty.net"
+EMAIL_HOST_PASSWORD = "O;a4ybm+~eC#"
 EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
