@@ -44,6 +44,7 @@ def get_all_invoice(request):
             "created_at_invoice": invoice.created_at.strftime("%d-%m-%Y %H:%m"),
             "total": invoice.total,
             "paid": invoice.paid,
+            "Received": invoice.Received,
             "supplier": invoice.supplier.id,
             "supplier_name": invoice.supplier.user.first_name + " " + invoice.supplier.user.last_name,
         }
