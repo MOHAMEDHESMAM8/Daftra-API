@@ -23,7 +23,7 @@ class Appointments(models.Model):
     duration = models.CharField(max_length=10)
     action = models.ForeignKey(actions, on_delete=models.SET_NULL, db_column="action", null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
-    employee = models.ForeignKey("Users.Employees",on_delete=models.SET(get_deleted_employee), db_column="employee",
+    employee = models.ForeignKey("Users.Employees", on_delete=models.SET(get_deleted_employee), db_column="employee",
                                  related_name="appointment_employee", null=True, blank=True)
     status = models.CharField(max_length=30, choices=status, default="scheduled")
     add_by = models.ForeignKey("Users.Employees", on_delete=models.SET(get_deleted_employee), db_column="add_by")

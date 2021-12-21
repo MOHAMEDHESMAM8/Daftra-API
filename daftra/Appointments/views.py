@@ -21,6 +21,10 @@ class getCreateAppointments(APIView):
             duration = int(item.get("duration"))
             time = datetime.strptime(item.get("time"), "%H:%M:%S") + timedelta(minutes=duration)
             item["end"] = time.strftime("%H:%M:%S")
+            customer = Customers.objects.get(id=item.get["customer"])
+            item["customer_name"] = customer.user.first_name + " " + customer.user.last_name
+            item["customer_email"] = customer.user.email
+            item["customer_phone"] = customer.user.phone
         return Response(serializer.data)
 
     def post(self, request):
@@ -48,7 +52,14 @@ class GetUpdateDeleteAppointments(APIView):
         # RolesPermissionsCheck(request, "update_appointment")
         obj = Appointments.objects.get(id=appointment)
         serializer = AppointmentsSerializer(obj)
-        return Response(serializer.data)
+        obj = serializer.data
+        customer = Customers.objects.get(id=obj.get["customer"])
+        obj["customer_name"] = customer.user.first_name + " " + customer.user.last_name
+        employee = Customers.objects.get(id=obj.get["employee"])
+        obj["employee_name"] = employee.user.first_name + " " + employee.user.last_name
+        action = actions.objects.get(id=obj.get["action"])
+        obj["action_name"] = action.name
+        return Response(obj)
 
     def put(self, request, appointment):
         # RolesPermissionsCheck(request, "update_appointment")
@@ -97,6 +108,7 @@ class GetUpdateDeleteAppointmentsActions(APIView):
     def get(self, request, action):
         obj = actions.objects.get(id=action)
         serializer = AppointmentActionsSerializer(obj)
+
         return Response(serializer.data)
 
     def put(self, request, action):
